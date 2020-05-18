@@ -496,6 +496,9 @@
     "symfony/yaml": {
         "version": "v5.0.8"
     },
+    "twbs/bootstrap": {
+        "version": "v4.5.0"
+    },
     "twig/extra-bundle": {
         "version": "v3.0.3"
     },
