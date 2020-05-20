@@ -8,11 +8,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class UsuariosController extends AbstractController
 {
     /**
-     * @Route("/usuarios", name="usuarios")
+     * @Route("/perfil", name="perfil")
      */
     public function index()
     {
-        return $this->render('usuarios/index.html.twig', [
+        return $this->render('perfil/index.html.twig', [
             'controller_name' => 'UsuariosController',
         ]);
     }

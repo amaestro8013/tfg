@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}⏩Inicio de sesión{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md">
+            
+            <h4>¿Aun no tienes un perfil? REGISTRATE!!</h4>
+
+            <form id="formRegis" name="formRegis" method="POST" action="{{ path ('login') }}">
+                
+                <input class="d-none" type="checkbox" id="registro" name="registro" checked/>
+                <label for="nombre">Nombre</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="text" id="nombre" name="nombre" required/>
+                <div class="espacio2"></div>
+                <label for="email">Email</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="email" id="mail" name="mail"  required />
+                <div class="espacio2"></div>
+                <label for="passwor">Contraseña</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="password" id="passwor" name="passwor" required />
+                <div class="espacio2"></div>
+                <input class="btn btn-light" type="submit" id="enviar" name="submit" />
+                
+
+            </form>
+        </div>
+
+        <div class="col-md">
+            
+            <h4>Si ya tienes cuenta, INICIE SESIÓN!!</h4>
+
+            <form id="formLogin" name="formRegis" method="POST" >
+            
+                <input class="d-none" type="checkbox" id="registro" name="registro" />
+                <label for="email">Email</label>
+                <div class="separador">
+                <input class="rellenar" type="email" id="mail" name="mail" required/>
+                <div class="separador2">
+                <label for="passwor">Contraseña</label>
+                <div class="separador">
+                <input class="rellenar" type="password" id="passwor" name="passwor" required/>
+                <div class="separador2">
+                <input class="btn btn-light" type="submit" id="enviar" name="submit" />
+                <div class="separador">
+                <label for="administrador">Administrador</label>
+                <input  type="checkbox" id="administrador" name="administrador" />
+                
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+
+{% endblock %}
