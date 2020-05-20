@@ -18,7 +18,7 @@
         "version": "1.6.4"
     },
     "doctrine/common": {
-        "version": "2.12.0"
+        "version": "2.13.0"
     },
     "doctrine/dbal": {
         "version": "2.10.2"
@@ -247,7 +247,7 @@
         "version": "v5.0.8"
     },
     "symfony/http-client-contracts": {
-        "version": "v2.0.1"
+        "version": "v2.1.1"
     },
     "symfony/http-foundation": {
         "version": "v5.0.8"
@@ -495,9 +495,6 @@
     },
     "symfony/yaml": {
         "version": "v5.0.8"
-    },
-    "twbs/bootstrap": {
-        "version": "v4.5.0"
     },
     "twig/extra-bundle": {
         "version": "v3.0.3"
