@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lista de Usuarios{% endblock %}
+
+
+{% block body %}
+
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Email</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Editar</th>
+                <th scope="col">Bloqueado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in usuarios %}
+                <tr>
+                    <th scope="row">{{u.idUsuarios}}</th>
+                    <td>{{u.mail}}</td>
+                    <td>{{u.nombre}}</td>
+                    <td>
+                        <a class="btn btn-light" href="/editar-usuario/{{u.idUsuarios}}">Editar<a>
+                    </td>
+                    <td>
+                        {% if u.bloqueado %}
+                            <b>Si</b>
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}    
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lista de Usuarios{% endblock %}
+
+
+{% block body %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md">
+            
+            <h4>Editar Usuario: <b class="nombre">{{usuario.nombre}}</b></h4>
+
+            <form id="formRegis" name="formRegis" method="POST" action="{{ path ('edit-user') }}">
+                
+                <input class="d-none" type="text" id="id" name="id" required value="{{usuario.idUsuarios}}"/>
+                <label for="nombre">Nombre</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="text" id="nombre" name="nombre" required value="{{usuario.nombre}}"/>
+                <div class="espacio2"></div>
+                <label for="email">Email</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="email" id="mail" name="mail"  required value="{{usuario.mail}}"/>
+                <div class="espacio2"></div>
+                <label for="passwor">Contraseña</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="password" id="passwor" name="passwor" required value="{{usuario.contrasena}}"/>
+                <div class="espacio2"></div>
+                <label for="bloquear">Bloquear</label>
+                <input  type="checkbox" id="administrador" name="bloquear" {% if usuario.bloqueado %} checked {% endif %}/>
+                <div class="espacio2"></div>
+                <input class="btn btn-light" type="submit" id="enviar" name="submit" />
+                
+
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

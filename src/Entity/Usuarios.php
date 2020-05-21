@@ -42,6 +42,13 @@ class Usuarios
      */
     private $nombre;
 
+    /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="bloqueado", type="boolean", nullable=true)
+     */
+    private $bloqueado = '0';
+
     public function getIdusuarios(): ?int
     {
         return $this->idusuarios;
@@ -79,6 +86,18 @@ class Usuarios
     public function setNombre(string $nombre): self
     {
         $this->nombre = $nombre;
+
+        return $this;
+    }
+
+    public function getBloqueado(): ?bool
+    {
+        return $this->bloqueado;
+    }
+
+    public function setBloqueado(?bool $bloqueado): self
+    {
+        $this->bloqueado = $bloqueado;
 
         return $this;
     }
