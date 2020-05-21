@@ -107,7 +107,7 @@ class AdministradoresController extends AbstractController
 
         $user=$em->getRepository(Usuarios::class)->find($id);
 
-        return $this->render('administradores/editarUsuario.html.twig',[
+        return $this->render('administradores/usuarioEditar.html.twig',[
             'usuario' => $user,
         ]);
     }
