@@ -1,20 +1,61 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello AdministradoresController!{% endblock %}
+{% block title %}Gestión de la web{% endblock %}
+
+{% block boton %}
+
+    <a href="/logout">
+        <button class="btn btn-light" type="button">
+            <svg class="bi bi-person-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+            </svg>
+            Cerrar sesión
+        </button>
+    </a>
+
+{% endblock %}
 
 {% block body %}
+
 <style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+.recuadro{
+    width: 250px;
+    height: 165px;
+    margin: 0px 5px ;
+    padding: 20px 0px 20px 0px;
+    background-color: white;
+    text-align: center;
+    color: black;
+    border: solid 1px #ccc;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+}
+.recuadro:hover {
+    border: solid 1px #777;
+    color: black;
+}
+
 </style>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ '/Users/alejandro/Google Drive/UNI/UEMC/TFG/Proyecto/Web de recomendaciones musicales/miweb/src/Controller/AdministradoresController.php'|file_link(0) }}">src/Controller/AdministradoresController.php</a></code></li>
-        <li>Your template at <code><a href="{{ '/Users/alejandro/Google Drive/UNI/UEMC/TFG/Proyecto/Web de recomendaciones musicales/miweb/templates/administradores/index.html.twig'|file_link(0) }}">templates/administradores/index.html.twig</a></code></li>
-    </ul>
+<div class="container">
+    <div class="row">
+        <a href="/gestion-administradores"  class="recuadro">
+            <p><b>Gestionar Administradores</b></p>  
+        </a>
+        <a href="/gestion-usuarios" class="recuadro">
+            <p><b>Gestionar Usuarios</b></p>
+        </a>
+        <a href="/gestion-canciones" title="746 - Gestión de atributos y stock" class="recuadro">
+            <p><b>Gestionar Canciones</b></p>
+        </a>
+        <a href="/gestion-busqueda" title="660 - Gestión de pedidos" class="recuadro">
+            <p><b>Gestionar busqueda</b></p>
+        </a>
+        
+    </div>
 </div>
 {% endblock %}

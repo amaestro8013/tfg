@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lista de Administradores{% endblock %}
+
+
+{% block body %}
+
+<style>
+
+.recuadro-full{
+    width: 100%;
+    height: 75px;
+    padding: 20px 0px 10px 0px;
+    background-color: white;
+    text-align: center;
+    color: black;
+    border: solid 1px #ccc;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+}
+.recuadro-full:hover {
+    border: solid 1px #777;
+    color: black;
+}
+
+</style>
+
+
+<div class="container">
+    <div class="row">
+        <a href="/add-administrador"  class="recuadro-full">
+            <p><b>Añadir Nuevo Administrador</b></p>  
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Email</th>
+                <th scope="col">Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in administradores %}
+                <tr>
+                    <th scope="row">{{a.idAdmnistradores}}</th>
+                    <td>{{a.mail}}</td>
+
+                    <td>
+                        {% if  app.session.get('user').mail == a.mail %}
+                            <a class="btn btn-light" style="color:#ccc">Eliminar Administrador</a>
+                        {% else %}
+                        <a class="btn btn-light" href="eliminar-admin/{{a.idAdmnistradores}}">Eliminar Administrador</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}    
+        </tbody>
+    </table>
+</div>
+{% endblock %}
