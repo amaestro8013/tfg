@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -40,29 +38,6 @@ class Perfiles
      */
     private $usuariosIdusuarios;
 
-    /**
-     * @var \Doctrine\Common\Collections\Collection
-     *
-     * @ORM\ManyToMany(targetEntity="Etiquetas", inversedBy="perfilesIdperfiles")
-     * @ORM\JoinTable(name="perfiles_has_etiquetas",
-     *   joinColumns={
-     *     @ORM\JoinColumn(name="Perfiles_idPerfiles", referencedColumnName="idPerfiles")
-     *   },
-     *   inverseJoinColumns={
-     *     @ORM\JoinColumn(name="Etiquetas_idEtiquetas", referencedColumnName="idEtiquetas")
-     *   }
-     * )
-     */
-    private $etiquetasIdetiquetas;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->etiquetasIdetiquetas = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
     public function getIdperfiles(): ?int
     {
         return $this->idperfiles;
@@ -92,30 +67,5 @@ class Perfiles
         return $this;
     }
 
-    /**
-     * @return Collection|Etiquetas[]
-     */
-    public function getEtiquetasIdetiquetas(): Collection
-    {
-        return $this->etiquetasIdetiquetas;
-    }
-
-    public function addEtiquetasIdetiqueta(Etiquetas $etiquetasIdetiqueta): self
-    {
-        if (!$this->etiquetasIdetiquetas->contains($etiquetasIdetiqueta)) {
-            $this->etiquetasIdetiquetas[] = $etiquetasIdetiqueta;
-        }
-
-        return $this;
-    }
-
-    public function removeEtiquetasIdetiqueta(Etiquetas $etiquetasIdetiqueta): self
-    {
-        if ($this->etiquetasIdetiquetas->contains($etiquetasIdetiqueta)) {
-            $this->etiquetasIdetiquetas->removeElement($etiquetasIdetiqueta);
-        }
-
-        return $this;
-    }
 
 }

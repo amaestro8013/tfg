@@ -2,14 +2,12 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Autores
  *
- * @ORM\Table(name="Autores")
+ * @ORM\Table(name="Autores", indexes={@ORM\Index(name="fk_Autores_Etiquetas1_idx", columns={"Etiquetas_idEtiquetas"})})
  * @ORM\Entity
  */
 class Autores
@@ -31,27 +29,14 @@ class Autores
     private $nombre;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var \Etiquetas
      *
-     * @ORM\ManyToMany(targetEntity="Canciones", mappedBy="autoresIdautores")
-     */
-    private $cancionesIdcanciones;
-
-    /**
-     * @var \Doctrine\Common\Collections\Collection
-     *
-     * @ORM\ManyToMany(targetEntity="Etiquetas", mappedBy="autoresIdautores")
+     * @ORM\ManyToOne(targetEntity="Etiquetas")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="Etiquetas_idEtiquetas", referencedColumnName="idEtiquetas")
+     * })
      */
     private $etiquetasIdetiquetas;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->cancionesIdcanciones = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->etiquetasIdetiquetas = new \Doctrine\Common\Collections\ArrayCollection();
-    }
 
     public function getIdautores(): ?int
     {
@@ -70,60 +55,17 @@ class Autores
         return $this;
     }
 
-    /**
-     * @return Collection|Canciones[]
-     */
-    public function getCancionesIdcanciones(): Collection
-    {
-        return $this->cancionesIdcanciones;
-    }
-
-    public function addCancionesIdcancione(Canciones $cancionesIdcancione): self
-    {
-        if (!$this->cancionesIdcanciones->contains($cancionesIdcancione)) {
-            $this->cancionesIdcanciones[] = $cancionesIdcancione;
-            $cancionesIdcancione->addAutoresIdautore($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCancionesIdcancione(Canciones $cancionesIdcancione): self
-    {
-        if ($this->cancionesIdcanciones->contains($cancionesIdcancione)) {
-            $this->cancionesIdcanciones->removeElement($cancionesIdcancione);
-            $cancionesIdcancione->removeAutoresIdautore($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Etiquetas[]
-     */
-    public function getEtiquetasIdetiquetas(): Collection
+    public function getEtiquetasIdetiquetas(): ?Etiquetas
     {
         return $this->etiquetasIdetiquetas;
     }
 
-    public function addEtiquetasIdetiqueta(Etiquetas $etiquetasIdetiqueta): self
+    public function setEtiquetasIdetiquetas(?Etiquetas $etiquetasIdetiquetas): self
     {
-        if (!$this->etiquetasIdetiquetas->contains($etiquetasIdetiqueta)) {
-            $this->etiquetasIdetiquetas[] = $etiquetasIdetiqueta;
-            $etiquetasIdetiqueta->addAutoresIdautore($this);
-        }
+        $this->etiquetasIdetiquetas = $etiquetasIdetiquetas;
 
         return $this;
     }
 
-    public function removeEtiquetasIdetiqueta(Etiquetas $etiquetasIdetiqueta): self
-    {
-        if ($this->etiquetasIdetiquetas->contains($etiquetasIdetiqueta)) {
-            $this->etiquetasIdetiquetas->removeElement($etiquetasIdetiqueta);
-            $etiquetasIdetiqueta->removeAutoresIdautore($this);
-        }
-
-        return $this;
-    }
 
 }

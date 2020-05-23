@@ -7,6 +7,7 @@ use App\Entity\Administradores;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -42,7 +43,8 @@ class LoginController extends AbstractController
                     $em->persist($usuario);
                     $em->flush();
 
-                    $session->set('tipo', 'usuario');
+                    // Establecer y obtener atributos de sesión
+                    $session->set('quien', 'usuario');
                     $session->set('user',$existe);
 
                     return $this->redirectToRoute('perfil');
@@ -65,7 +67,8 @@ class LoginController extends AbstractController
                         $pass=$existe->getContrasena();
                         
                         if($pass==$contrasena){
-                            $session->set('tipo', 'administrador');
+
+                            $session->set('quien', 'administrador');
                             $session->set('user',$existe);
 
                             return $this->redirectToRoute('administrador');
@@ -78,7 +81,9 @@ class LoginController extends AbstractController
                         $pass=$existe->getContrasena();
                         
                         if($pass==$contrasena){
-                            $session->set('tipo', 'usuario');
+
+                            // Establecer y obtener atributos de sesión
+                            $session->set('quien', 'usuario');
                             $session->set('user',$existe);
 
                             return $this->redirectToRoute('perfil');
@@ -98,9 +103,11 @@ class LoginController extends AbstractController
      */
     public function logoutAction(Request $request, SessionInterface $session)
     {
-        $session->invalidate();
+        $session->clear(); 
+        $session->invalidate(); 
+        $session->clear(); 
+        
         
         return $this->redirectToRoute('inicio');
     }
 }
- // var_dump($session->get('tipo'));

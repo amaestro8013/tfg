@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Usuarios;
 use App\Entity\Autores;
 use App\Entity\Canciones;
+use App\Entity\Cancionesautores;
+use App\Entity\Cancionesetiquetas;
 use App\Entity\Etiquetas;
 use App\Entity\Administradores;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,6 +52,9 @@ class AdministradoresController extends AbstractController
         ]);
     }
 
+
+    //CANCIONES
+
     /**
      * @Route("/gestion-canciones", name="gestion-canciones")
      */
@@ -85,48 +90,105 @@ class AdministradoresController extends AbstractController
             $cancion->setAlbum($album);
             $cancion->setFecha($fecha);
 
+            $em->persist($cancion);
+            $em->flush();
+
+            //Autores y relacion con autores
             $autores=$datos->request->get('autor'); 
             foreach ($autores as $autor){
                 if($cantante=$em->getRepository(Autores::class)->findOneBy(['nombre'=> $autor])){
 
-                    $cancion->addAutoresIdautore($cantante);
+                    //relacionar la cancion con el autor
+                    $cancionAutor = new Cancionesautores();
+                    $cancionAutor->setAutoresIdautores($cantante);
+                    $cancionAutor->setCancionesIdcanciones($cancion);
+
+                    $em->persist($cancionAutor);
+                    $em->flush();
+
+                    //relacionar la cancion con la etiqueta del autor
+                    $etiquetaAutor=$em->getRepository(Etiquetas::class)->findBy(['nombre'=>$cantante]);
+                    $cancionEtiqueta = new Cancionesetiquetas();
+                    $cancionEtiqueta->setEtiquetasIdetiquetas($etiquetaAutor);
+                    $cancionEtiqueta->setCancionesIdcanciones($cancion);
+
+                    $em->persist($cancionEtiqueta);
+                    $em->flush();
                 }
                 else{
+                    //creamos la etiqueta del autor
+                    $newTagAutor= new Etiquetas();
+                    $newTagAutor->setNombre($autor);
+                    $newTagAutor->setTipoautor(true);
+
+                    $em->persist($newTagAutor);
+                    $em->flush();
+
+                    //creamos al autor con su etiqueta
                     $newCantante= new Autores();
                     $newCantante->setNombre($autor);
+                    $newCantante->setEtiquetasIdetiquetas($newTagAutor);
 
                     $em->persist($newCantante);
                     $em->flush();
 
-                    $cancion->addAutoresIdautore($newCantante);
+                    //relacionar la cancion con el autor
+                    $cancionAutor = new Cancionesautores();
+                    $cancionAutor->setAutoresIdautores($newCantante);
+                    $cancionAutor->setCancionesIdcanciones($cancion);
+
+                    $em->persist($cancionAutor);
+                    $em->flush();
+
+                    //relacionar la cancion con la etiqueta del autor
+                    $cancionEtiqueta = new Cancionesetiquetas();
+                    $cancionEtiqueta->setEtiquetasIdetiquetas($newTagAutor);
+                    $cancionEtiqueta->setCancionesIdcanciones($cancion);
+
+                    $em->persist($cancionEtiqueta);
+                    $em->flush();
                 }
             }
             
+            //Etiquetas y relacion con etiquetas
             $etiquetas=$datos->request->get('etiqueta');
-            foreach ($etiquetas as $id){
-                
-                $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
-                $cancion->addEtiquetasIdetiqueta($etiqueta);
+            if($etiquetas){
+                foreach ($etiquetas as $id){
+                    
+                    $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
+
+                    $cancionEtiqueta = new Cancionesetiquetas();
+                    $cancionEtiqueta->setEtiquetasIdetiquetas($etiqueta);
+                    $cancionEtiqueta->setCancionesIdcanciones($cancion);
+
+                    $em->persist($cancionEtiqueta);
+                    $em->flush();
+                }
             }
+                
 
             $newEtiquetas=$datos->request->get('newEtiqueta');
-            foreach ($newEtiquetas as $newEtiqueta){
-                
-                $newTag= new Etiquetas();
-                $newTag->setNombre($newEtiqueta);
+            if($newEtiquetas){
+                foreach ($newEtiquetas as $newEtiqueta){
+                    
+                    $newTag= new Etiquetas();
+                    $newTag->setNombre($newEtiqueta);
 
-                $em->persist($newTag);
-                $em->flush();
+                    $em->persist($newTag);
+                    $em->flush();
 
-                $cancion->addEtiquetasIdetiqueta($newTag);
+                    $cancionNewEtiqueta = new Cancionesetiquetas();
+                    $cancionNewEtiqueta->setEtiquetasIdetiquetas($newTag);
+                    $cancionNewEtiqueta->setCancionesIdcanciones($cancion);
+
+                    $em->persist($cancionNewEtiqueta);
+                    $em->flush();
+                }
             }
-
-            $em->persist($cancion);
-            $em->flush();
         }
 
         $em = $this->getDoctrine()->getManager();
-        $etiquetas=$em->getRepository(Etiquetas::class)->findAll();
+        $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipoautor'=>0]);
 
 
         return $this->render('administradores/cancionAdd.html.twig',[
@@ -144,12 +206,8 @@ class AdministradoresController extends AbstractController
 
         $cancion=$em->getRepository(Canciones::class)->find($id);
  
+        $autores=$em->getRepository(Cancionesautores::class)->findBy(['autoresIdautores'=>$id]);
 
-        $autores=$em->getRepository(Canciones::class)->findBy(['autoresIdautores'=>$id]);
-
-
-        // $query = $em->createQuery('SELECT Autores_idAutores FROM Autores');
-        // $autoresIds = $query->getResult();
 
         var_dump($autoresIds);die;
 
@@ -165,6 +223,17 @@ class AdministradoresController extends AbstractController
     public function eliminarCancion($id)
     {
         $em = $this->getDoctrine()->getManager();
+
+        $cancionAutor=$em->getRepository(Cancionesautores::class)->findBy(['cancionesIdcanciones'=>$id]);
+        $cancionEtiqueta=$em->getRepository(Cancionesetiquetas::class)->findBy(['cancionesIdcanciones'=>$id]);
+        
+        foreach ($cancionAutor as $relacionAutor){
+            $em->remove($relacionAutor);
+        }
+        foreach ($cancionEtiqueta as $relacionEtiqueta){
+            $em->remove($relacionEtiqueta);
+        }
+        $em->flush();
 
         $cancion=$em->getRepository(Canciones::class)->find($id);
         
