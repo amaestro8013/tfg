@@ -42,6 +42,7 @@
         <thead>
             <tr>
                 <th scope="col">Titulo</th>
+                <th scope="col">Autores</th>
                 <th scope="col">Editar</th>
                 <th scope="col">Eliminar</th>
             </tr>
@@ -49,12 +50,18 @@
         <tbody>
             {% for c in canciones %}
                 <tr>
-                    <th scope="row">{{c.titulo}}</th>
+                    <th scope="row">{{c[0].cancionesIdcanciones.titulo}}</th>
+                    <th scope="row">
+                        {% for a in c %}
+                            {{a.autoresIdautores.nombre}}
+                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        {% endfor %}
+                    </th>
                     <td>
-                        <a class="btn btn-light" href="editar-cancion/{{c.idCanciones}}">Editar</a>
+                        <a class="btn btn-light" href="editar-cancion/{{c[0].cancionesIdcanciones.idCanciones}}">Editar</a>
                     </td>
                     <td>
-                        <a class="btn btn-light" href="eliminar-cancion/{{c.idCanciones}}">Eliminar</a>
+                        <a class="btn btn-light" href="eliminar-cancion/{{c[0].cancionesIdcanciones.idCanciones}}">Eliminar</a>
                     </td>
                 </tr>
             {% endfor %}    
