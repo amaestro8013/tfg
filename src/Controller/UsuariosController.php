@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Usuarios;
 use App\Entity\Perfiles;
 use App\Entity\Etiquetas;
+use App\Entity\Foros;
 use App\Entity\Perfilesetiquetas;
+use App\Entity\Forosetiquetas;
 
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -255,8 +257,6 @@ class UsuariosController extends AbstractController
             $usuario= $em->getRepository(Usuarios::class)->find($id);
             $nombre=$datos->request->get('nombre');
             $em->persist($usuario);
-            
-            $id=$datos->request->get('idUsuario');
 
             $etiquetas=$datos->request->get('etiqueta');
             if($etiquetas){
@@ -279,11 +279,108 @@ class UsuariosController extends AbstractController
                     $em->persist($PerfilEtiquetas);
                     $em->flush();
                 }
+
+                $relacionEtiquetasPerfil=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
+                $numRelacionEtiquetasPerfil = count($relacionEtiquetasPerfil);
+                
+                $contador=0;
+                $existe=0;
+
+                $foros=$em->getRepository(Foros::class)->findAll();
+
+                if($foros){
+                    foreach ($foros as $foro){
+                        $relacionEtiquetasForo=$em->getRepository(Forosetiquetas::class)->findBy(['forosIdforos'=>$foro->getIdforos()]);
+                        $numRelacionEtiquetasForo = count($relacionEtiquetasForo);
+
+                        if ($numRelacionEtiquetasPerfil == $numRelacionEtiquetasForo){
+
+                            foreach ($relacionEtiquetasForo as $etiquetaForo){
+                                $F=$em->getRepository(Etiquetas::class)->find($etiquetaForo->getEtiquetasIdetiquetas());
+
+                                foreach ($relacionEtiquetasPerfil as $etiquetaPerfil){
+                                    $P=$em->getRepository(Etiquetas::class)->find($etiquetaPerfil->getEtiquetasIdetiquetas());
+                
+                                    if( $P->getIdetiquetas()==$F->getIdetiquetas() ){
+                                        $contador = $contador +1;
+                                    }
+                                }
+                            }
+                            
+                            if ($contador == $numRelacionEtiquetasForo){
+                                $existe=1;
+                                $perfil->setForosIdforos($foro);
+                                $em->persist($perfil);
+                                $em->flush();
+
+                                foreach ($etiquetas as $id){
+                        
+                                    $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
+                
+                                    $ForosEtiquetas = new Forosetiquetas();
+                                    $ForosEtiquetas->setEtiquetasIdetiquetas($etiqueta);
+                                    $ForosEtiquetas->setForosIdforos($foro);
+                
+                                    $em->persist($ForosEtiquetas);
+                                    $em->flush();
+                                }   
+                            }else{
+                                $contador = 0;
+                            }
+                        }
+                    }
+                    if ($existe==0){
+                        $foro = new Foros();
+                        $em->persist($foro);
+                        $em->flush();
+
+                        $perfil->setForosIdforos($foro);
+                        $em->persist($perfil);
+                        $em->flush();
+        
+                        foreach ($etiquetas as $id){
+                            
+                            $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
+        
+                            $ForosEtiquetas = new Forosetiquetas();
+                            $ForosEtiquetas->setEtiquetasIdetiquetas($etiqueta);
+                            $ForosEtiquetas->setForosIdforos($foro);
+        
+                            $em->persist($ForosEtiquetas);
+                            $em->flush();
+                        }
+                    }
+                }else{
+                    $foro = new Foros();
+                    $em->persist($foro);
+                    $em->flush();
+
+                    $perfil->setForosIdforos($foro);
+                    $em->persist($perfil);
+                    $em->flush();
+    
+                    foreach ($etiquetas as $id){
+                        
+                        $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
+    
+                        $ForosEtiquetas = new Forosetiquetas();
+                        $ForosEtiquetas->setEtiquetasIdetiquetas($etiqueta);
+                        $ForosEtiquetas->setForosIdforos($foro);
+    
+                        $em->persist($ForosEtiquetas);
+                        $em->flush();
+                    }
+                }
+
+
+
             }else{
                 echo '<script>type="text/javascript">
                     alert("Selecciona al menos un artista o genero musical");
                 </script>';
             }
+
+            
         }
 
         $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipoautor'=>0]);

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Foros
  *
- * @ORM\Table(name="Foros", indexes={@ORM\Index(name="fk_Foros_Perfiles1_idx", columns={"Perfiles_idPerfiles"})})
+ * @ORM\Table(name="Foros")
  * @ORM\Entity
  */
 class Foros
@@ -21,31 +21,9 @@ class Foros
      */
     private $idforos;
 
-    /**
-     * @var \Perfiles
-     *
-     * @ORM\ManyToOne(targetEntity="Perfiles")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="Perfiles_idPerfiles", referencedColumnName="idPerfiles")
-     * })
-     */
-    private $perfilesIdperfiles;
-
     public function getIdforos(): ?int
     {
         return $this->idforos;
-    }
-
-    public function getPerfilesIdperfiles(): ?Perfiles
-    {
-        return $this->perfilesIdperfiles;
-    }
-
-    public function setPerfilesIdperfiles(?Perfiles $perfilesIdperfiles): self
-    {
-        $this->perfilesIdperfiles = $perfilesIdperfiles;
-
-        return $this;
     }
 
 
