@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block body %}
+
+<style>
+.recuadro{
+    display: inline-block;
+    width: 49%;
+    height: 70px;
+    margin: 0px 5px ;
+    padding: 20px 0px 10px 0px;
+    background-color: white;
+    text-align: center;
+    color: black;
+    border: solid 1px #ccc;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+}
+.recuadro:hover {
+    border: solid 1px orange;
+    color: black;
+}
+
+
+</style>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <h2>Edita tus datos de perfil</h2> 
+            <p>En esta página podras editar tu información</p>  
+        </div>   
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            
+            <h4>Editar Usuario</h4>
+
+            <form id="formedituser" name="formedituser" method="POST" action="{{ path ('edit-perfil') }}">
+                
+                <input class="d-none" type="text" id="tipo" name="tipo" required value="perfil"/>
+                <input class="d-none" type="text" id="id" name="id" required value="{{usuario.idUsuarios}}"/>
+                <label for="nombre">Nombre</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="text" id="nombre" name="nombre" required value="{{usuario.nombre}}"/>
+                <div class="espacio2"></div>
+                <label for="email">Email</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="email" id="mail" name="mail"  required value="{{usuario.mail}}"/>
+                <div class="espacio2"></div>
+                <label for="passwor">Contraseña para guardar cambios</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="password" id="passwor" name="passwor" required/>
+                <div class="espacio2"></div>
+                <input class="btn btn-light" type="submit" id="enviar" name="submit" />
+                
+
+            </form>
+        </div>
+
+        <div class="col-md-6">
+            
+            <h4>Cambiar la contraseña:</h4>
+
+            <form id="formedituser" name="formedituser" method="POST" action="{{ path ('edit-perfil') }}">
+                
+                <input class="d-none" type="text" id="tipo" name="tipo" required value="contrasena"/>
+                <input class="d-none" type="text" id="id" name="id" required value="{{usuario.idUsuarios}}"/>
+                <label for="passwor">Contraseña Antigua</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="password" id="passwor" name="passwor" required/>
+                <div class="espacio2"></div>
+                <label for="newpasswor">Contraseña Nueva</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="password" id="newpasswor" name="newpasswor" required/>
+                <div class="espacio2"></div>
+                <label for="repeatpasswor">Repita la nueva Contraseña</label>
+                <div class="espacio"></div>
+                <input class="rellenar" type="password" id="parepeatpassworsswor" name="repeatpasswor" required/>
+                <div class="espacio2"></div>
+                <input class="btn btn-light" type="submit" id="enviar" name="submit" />
+                
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <p>AQUI TIENE QUE IR EL BOTON DE BORRAR</p>  
+        </div>   
+    </div>
+</div>
+{% endblock %}
+

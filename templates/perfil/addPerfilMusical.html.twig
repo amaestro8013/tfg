@@ -1,0 +1,151 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Crear Perfil Musical{% endblock %}
+
+{% block body %}
+
+<style>
+
+.recuadro-full{
+    width: 100%;
+    height: 75px;
+    padding: 20px 0px 10px 0px;
+    background-color: white;
+    text-align: center;
+    color: black;
+    border: solid 1px #ccc;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+}
+.recuadro-full:hover {
+    border: solid 1px #777;
+    color: black;
+}
+</style>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md">
+            <h4>Añadir nuevo perfil de gustos musicales</h4>
+
+            <form id="formAddCancion" name="formAddCancion" method="POST" action="{{ path ('add-perfil-musical') }}">
+                <input class="d-none" type="text" id="idUsuario" name="idUsuario" required value="{{app.session.get('user').idusuarios }}"/>
+                <div class="col-md-12">
+                    <label for="nombre">¿Cómo quieres nombrar a tu nuevo Perfil?</label>
+                    <div class="espacio"></div>
+                    <input class="rellenar" type="text" id="nombre" name="nombre" required placeholder="Escriba aqui el nombre"/>
+                    <div class="espacio2"></div>
+                    </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-1"></div>
+                        <div class="col-md-5">
+                            <h3> ¿Qué tipo de musica te gusta?</h3>
+                            <table class="table table-striped">
+                                <tbody>
+                                    {% for e in etiquetas %}
+                                        <tr>
+                                            <th scope="row">{{e.nombre}}</th>
+                                            <td>
+                                                <input class="selectEtiqueta" type="checkbox" name="etiqueta[]" value="{{e.idEtiquetas}}"/>
+                                            </td>
+                                        </tr>
+                                    {% endfor %} 
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-5">
+                            <h3> ¿Cuáles son tus artistas favoritos?</h3>
+                            <table class="table table-striped">
+                                <tbody>
+                                    {% for a in autores %}
+                                        <tr>
+                                            <th scope="row">{{a.nombre}}</th>
+                                            <td>
+                                                <input class="selectEtiqueta" type="checkbox" name="etiqueta[]" value="{{a.idEtiquetas}}"/>
+                                            </td>
+                                        </tr>
+                                    {% endfor %} 
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-12">
+                            <input class="btn btn-light" type="submit" id="enviar" name="submit" value="Crear"/>
+                        </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+//https://www.codexworld.com/add-remove-input-fields-dynamically-using-jquery/
+
+//AUTORES
+$(document).ready(function(){
+//    var maxField = 10; //Input fields increment limitation
+    var addButton = $('.add_button'); //Add button selector
+    var wrapper = $('.field_wrapper'); //Input field wrapper
+    
+    var fieldHTML = 
+        '<div><input class="rellenar" type="text" name="autor[]" required/><a href="javascript:void(0);" class="remove_button"><svg class="bi bi-dash" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1H4a.5.5 0 01-.5-.5z" clip-rule="evenodd"/></svg></a></div>';
+        //New input field html 
+        
+    var x = 1; //Initial field counter is 1
+    
+    //Once add button is clicked
+    $(addButton).click(function(){
+        //Check maximum number of input fields
+//        if(x < maxField){ 
+//            x++; //Increment field counter
+            $(wrapper).append(fieldHTML); //Add field html
+//        }
+    });
+    
+    //Once remove button is clicked
+    $(wrapper).on('click', '.remove_button', function(e){
+        e.preventDefault();
+        $(this).parent('div').remove(); //Remove field html
+//        x--; //Decrement field counter
+    });
+});
+
+
+
+//ETIQUETAS
+$(document).ready(function(){
+//    var maxField = 10; //Input fields increment limitation
+    var addEtiqueta = $('.add_etiqueta'); //Add button selector
+    var wrapperEtiqueta = $('.field_wrapper_etiqueta'); //Input field wrapper
+    
+    var fieldHTMLetiqueta = 
+        '<div><input class="rellenar" type="text" name="newEtiqueta[]"/><a href="javascript:void(0);" class="remove_etiqueta"><svg class="bi bi-dash" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1H4a.5.5 0 01-.5-.5z" clip-rule="evenodd"/></svg></a></div>';
+        //New input field html 
+        
+    var x = 1; //Initial field counter is 1
+    
+    //Once add button is clicked
+    $(addEtiqueta).click(function(){
+        //Check maximum number of input fields
+//        if(x < maxField){ 
+//            x++; //Increment field counter
+            $(wrapperEtiqueta).append(fieldHTMLetiqueta); //Add field html
+//        }
+    });
+    
+    //Once remove button is clicked
+    $(wrapperEtiqueta).on('click', '.remove_etiqueta', function(e){
+        e.preventDefault();
+        $(this).parent('div').remove(); //Remove field html
+//        x--; //Decrement field counter
+    });
+});
+</script>
+
+
+{% endblock %}  
