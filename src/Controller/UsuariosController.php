@@ -32,9 +32,83 @@ class UsuariosController extends AbstractController
     }
 
     /**
+     * @Route("/get-perfil/{id}", name="get-perfil/")
+     */
+    public function getPerfilMusical(Request $datos, SessionInterface $session, $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        
+        $perfil=$em->getRepository(Perfiles::class)->find($id);
+
+        $etiquetas=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil]);
+
+        return $this->render('perfil/perfilMusical.html.twig', [
+            'perfil' => $perfil, 'etiquetas' => $etiquetas,
+        ]);
+    }
+
+    /**
+     * @Route("/editar-perfil-musical/{id}", name="editar-perfil-musical")
+     */
+    public function editarPerfilMusical(Request $datos, SessionInterface $session, $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        
+        $perfil=$em->getRepository(Perfiles::class)->find($id);
+
+        $seleccionadas=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil]);
+
+        $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipoautor'=>0]);
+        $autores=$em->getRepository(Etiquetas::class)->findBy(['tipoautor'=>1]);
+
+        return $this->render('perfil/editarPerfilMusical.html.twig', [
+            'perfil' => $perfil, 'seleccionadas' => $seleccionadas, 'etiquetas' => $etiquetas, 'autores' => $autores,
+        ]);
+    }
+
+     /**
+     * @Route("/edit-perfil-musical", name="edit-perfil-musical")
+     */
+    public function editPerfilMusical(Request $datos, SessionInterface $session)
+    {
+        if($_POST){
+
+            $em = $this->getDoctrine()->getManager(); 
+
+            $id = $datos->request->get('idPerfil');
+            
+            $this->addPerfilMusical($datos, $session);
+
+            $this->eliminarPerfilMusical($id);
+        }
+        return $this->redirectToRoute('perfil');
+    }
+
+    /**
+     * @Route("/eliminar-perfil-musical/{id}", name="eliminar-perfil-musical")
+     */
+    public function eliminarPerfilMusical($id)
+    {
+        $em = $this->getDoctrine()->getManager(); 
+
+        $perfil=$em->getRepository(Perfiles::class)->find($id);
+
+        $relaciones=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
+
+        foreach ($relaciones as $relacion){
+            $em->remove($relacion);
+            $em->flush();
+        }
+        $em->remove($perfil);
+        $em->flush();
+        
+        return $this->redirectToRoute('perfil');
+    }
+
+    /**
      * @Route("/editar-perfil", name="editar-perfil")
      */
-    public function editarPerfil(SessionInterface $session)
+    public function editarPerfilUsuario(SessionInterface $session)
     {
    
         $em = $this->getDoctrine()->getManager();
@@ -46,10 +120,10 @@ class UsuariosController extends AbstractController
         ]);
     }
 
-        /**
+    /**
      * @Route("/edit-perfil", name="edit-perfil")
      */
-    public function editPerfil(SessionInterface $session, Request $datos)
+    public function editPerfilUsuario(SessionInterface $session, Request $datos)
     {
    
         if($_POST){
@@ -141,7 +215,7 @@ class UsuariosController extends AbstractController
         ]);
     }
 
-        /**
+    /**
      * @Route("/eliminar-usuario/{id}", name="eliminar-usuario")
      */
     public function eliminarUsuario($id)

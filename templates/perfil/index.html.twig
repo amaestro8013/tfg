@@ -1,20 +1,59 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello UsuariosController!{% endblock %}
+{% block title %}Perfil de usuario{% endblock %}
 
 {% block body %}
+
 <style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+.recuadro{
+    display: inline-block;
+    width: 49%;
+    height: 70px;
+    margin: 0px 5px ;
+    padding: 20px 0px 10px 0px;
+    background-color: white;
+    text-align: center;
+    color: black;
+    border: solid 1px #ccc;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+}
+.recuadro:hover {
+    border: solid 1px orange;
+    color: black;
+}
+
 </style>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ '/Users/alejandro/Google Drive/UNI/UEMC/TFG/Proyecto/Web de recomendaciones musicales/miweb/src/Controller/UsuariosController.php'|file_link(0) }}">src/Controller/UsuariosController.php</a></code></li>
-        <li>Your template at <code><a href="{{ '/Users/alejandro/Google Drive/UNI/UEMC/TFG/Proyecto/Web de recomendaciones musicales/miweb/templates/usuarios/index.html.twig'|file_link(0) }}">templates/usuarios/index.html.twig</a></code></li>
-    </ul>
+<div class="container">
+    <div class="row">
+        <a href="/add-perfil-musical"  class="recuadro">
+            <p><b>Crear perfil de gustos musicales</b></p>  
+        </a>
+        <a href="/editar-perfil" class="recuadro">
+            <p><b>Editar perfil</b></p>
+        </a>        
+    </div>
 </div>
+
+<div class="container">
+    <div class="row">
+        {% for perfil in perfiles %}
+            
+            <div class="col-md-8">
+                <a href="get-perfil/{{perfil.idPerfiles}}"  class="recuadro-perfil">
+                    <div>
+                        <h2>Perfil: <b>{{perfil.nombre}}</b></h2>
+                    </div>
+                </a>
+            </div>
+            
+        {% endfor %}      
+    </div>
+</div>
+
 {% endblock %}

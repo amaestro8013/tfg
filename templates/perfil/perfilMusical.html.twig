@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Perfil de usuario{% endblock %}
+
+{% block body %}
+
+<style>
+.recuadro{
+    display: inline-block;
+    width: 32%;
+    height: 70px;
+    margin: 0px 5px ;
+    padding: 20px 0px 10px 0px;
+    background-color: white;
+    text-align: center;
+    color: black;
+    border: solid 1px #ccc;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+}
+.recuadro:hover {
+    border: solid 1px orange;
+    color: black;
+}
+
+.etiquetas-perfil{
+    width:25%;
+    display:inline-block;
+}
+</style>
+
+
+<div class="container">
+    <div class="row">
+        <a href="/editar-perfil-musical/{{perfil.idperfiles}}"  class="recuadro">
+            <p><b>Editar este perfil musical</b></p>  
+        </a>
+        <a href="/foro" class="recuadro">
+            <p><b>Acceder al foro</b></p>
+        </a>    
+        <a href="/eliminar-perfil-musical/{{perfil.idperfiles}}" class="recuadro">
+            <p><b>Eliminar perfil musical</b></p>
+        </a>       
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>{{perfil.nombre}}</h2>
+            {% for etiqueta in etiquetas %}
+                 <div class="etiquetas-perfil">{{etiqueta.etiquetasidetiquetas.nombre}}</div> 
+            {% endfor %}
+        </div> 
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 busqueda">
+            {# CONTENIDO DE LA BUSQUEDA SEGUN EL ALGORITMO #}
+        </div> 
+    </div>
+</div>
+
+{% endblock %}

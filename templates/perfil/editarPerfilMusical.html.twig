@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Crear Perfil Musical{% endblock %}
+
+{% block body %}
+
+<style>
+
+.recuadro-full{
+    width: 100%;
+    height: 75px;
+    padding: 20px 0px 10px 0px;
+    background-color: white;
+    text-align: center;
+    color: black;
+    border: solid 1px #ccc;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+}
+.recuadro-full:hover {
+    border: solid 1px #777;
+    color: black;
+}
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md">
+            <h4>Editar perfil de gustos musicales: <b>{{perfil.nombre}}</b></h4>
+
+            <form id="formAddCancion" name="formAddCancion" method="POST" action="{{ path ('edit-perfil-musical') }}">
+                <input class="d-none" type="text" id="idUsuario" name="idUsuario" required value="{{app.session.get('user').idusuarios}}"/>
+                <input class="d-none" type="text" id="idPerfil" name="idPerfil" required value="{{perfil.idperfiles}}"/>
+                <div class="col-md-12">
+                    <label for="nombre">Cambiar el nombre del perfil</label>
+                    <div class="espacio"></div>
+                    <input class="rellenar" type="text" id="nombre" name="nombre" required value="{{perfil.nombre}}"/>
+                    <div class="espacio2"></div>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-1"></div>
+                        <div class="col-md-5">
+                            <h3> Cambiar generos musicales</h3>
+                            <table class="table table-striped">
+                                <tbody>
+                                    {% for e in etiquetas %}
+                                        <tr>
+                                            <th scope="row">{{e.nombre}}</th>
+                                            <td>
+                                                {% set i = '0' %}
+                                                {% for s in seleccionadas %}
+                                                    {% if e.nombre == s.etiquetasIdetiquetas.nombre %}
+                                                        {% set i = 1 %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if i == 1 %}
+                                                    <input class="selectEtiqueta" type="checkbox" name="etiqueta[]" value="{{e.idEtiquetas}}" checked/>
+                                                {% else %}
+                                                    <input class="selectEtiqueta" type="checkbox" name="etiqueta[]" value="{{e.idEtiquetas}}"/>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %} 
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-5">
+                            <h3> Cambiar artistas</h3>
+                            <table class="table table-striped">
+                                <tbody>
+                                    {% for a in autores %}
+                                        <tr>
+                                            <th scope="row">{{a.nombre}}</th>
+                                            <td>
+                                                {% set i = '0' %}
+                                                {% for s in seleccionadas %}
+                                                    {% if a.idetiquetas == s.etiquetasIdetiquetas.idetiquetas %}
+                                                        {% set i = 1 %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if i == 1 %}
+                                                    <input class="selectEtiqueta" type="checkbox" name="etiqueta[]" value="{{a.idEtiquetas}}" checked/>
+                                                {% else %}
+                                                    <input class="selectEtiqueta" type="checkbox" name="etiqueta[]" value="{{a.idEtiquetas}}"/>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %} 
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-12">
+                            <input class="btn btn-light" type="submit" id="enviar" name="submit" value="Crear"/>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}  
