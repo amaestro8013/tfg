@@ -45,7 +45,7 @@ class LoginController extends AbstractController
 
                     // Establecer y obtener atributos de sesión
                     $session->set('quien', 'usuario');
-                    $session->set('user',$existe);
+                    $session->set('user',$usuario);
 
                     return $this->redirectToRoute('perfil');
                 }

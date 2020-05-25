@@ -24,6 +24,12 @@ class AdministradoresController extends AbstractController
         return $this->render('administradores/index.html.twig');
     }
 
+
+
+//
+// ADMINISTRADORES
+//
+
     /**
      * @Route("/gestion-administradores", name="gestion-administradores")
      */
@@ -39,6 +45,63 @@ class AdministradoresController extends AbstractController
     }
 
     /**
+     * @Route("/add-administrador", name="add-administrador")
+     */
+    public function addAdmin(Request $datos)
+    {
+
+        if($_POST){
+
+            $em = $this->getDoctrine()->getManager(); 
+
+            $contrasena = md5($datos->request->get('passwor'));
+            $mail = $datos->request->get('mail');
+
+            //comprobar admin ya existe
+            if(!$existe=$em->getRepository(Administradores::class)->findOneBy(['mail'=> $mail])){
+                
+                $admin= new Administradores();
+                $admin->setMail($mail);
+                $admin->setContrasena($contrasena);
+                
+                $em->persist($admin);
+                $em->flush();
+
+            }
+            else{
+                echo '<script>type="text/javascript">
+                    alert("Este correo ya pertenece a un administrador");
+                </script>';
+            }
+        }
+
+        return $this->render('administradores/add.html.twig');
+    }
+
+    /**
+     * @Route("/eliminar-admin/{id}", name="eliminar-admin")
+     */
+    public function eliminarAdmin($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $administrador=$em->getRepository(Administradores::class)->find($id);
+        
+        $em->remove($administrador);
+        $em->flush();
+        
+
+        return $this->redirectToRoute('gestion-administradores');
+    }
+
+
+
+
+//
+// USUARIOS
+//
+
+    /**
      * @Route("/gestion-usuarios", name="gestion-usuarios")
      */
     public function usuarios()
@@ -52,6 +115,73 @@ class AdministradoresController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/editar-usuario/{id}", name="editar-usuario")
+     */
+    public function editarUsuario($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $user=$em->getRepository(Usuarios::class)->find($id);
+
+        return $this->render('administradores/usuarioEditar.html.twig',[
+            'usuario' => $user,
+        ]);
+    }
+
+
+    /**
+     * @Route("/edit-user", name="edit-user")
+     */
+    public function editUser(Request $datos)
+    {
+        if($_POST){
+            $em = $this->getDoctrine()->getManager();
+
+            $id=$datos->request->get('id');
+            $mail = $datos->request->get('mail');
+
+            $usuario=$em->getRepository(Usuarios::class)->find($id);
+
+            $u=$em->getRepository(Usuarios::class)->findBy(['mail'=>$mail]);
+            $contador = 0;
+            foreach ($u as $existemail){
+                if ($existemail->getMail() == $mail){
+                    if($usuario->getMail() == $mail){
+                    }else{
+                        $contador = 1;
+                    }
+                }
+            }
+            if ($contador == 0){
+                $contrasena = md5($datos->request->get('passwor'));
+                $nombre = $datos->request->get('nombre');
+
+                if( empty($datos->request->get('bloquear')) ) {
+                    $bloqueado=false;
+                }else{
+                    $bloqueado=true;
+                }
+
+                $usuario->setNombre($nombre);
+                $usuario->setMail($mail);
+                $usuario->setBloqueado($bloqueado);
+                if($contrasena == ''){
+                }else{
+                    $usuario->setContrasena($contrasena);
+                }
+                
+                $em->persist($usuario);
+                $em->flush();              
+            }
+            else{
+                echo '<script>
+                    alert("Email ya existe");
+                    </script>';
+            }              
+        }
+        return $this->redirectToRoute('gestion-usuarios');
+    }
 
 
 
@@ -228,7 +358,6 @@ class AdministradoresController extends AbstractController
         ]);
     }
 
-
     /**
      * @Route("/edit-cancion/", name="edit-cancion")
      */
@@ -246,7 +375,6 @@ class AdministradoresController extends AbstractController
 
         return $this->redirectToRoute('gestion-canciones');
     }
-
 
     public function autoresDeCancion($id){
 
@@ -285,8 +413,6 @@ class AdministradoresController extends AbstractController
         return $etiquetas;
     }
 
-
-
     /**
      * @Route("/eliminar-cancion/{id}", name="eliminar-cancion")
      */
@@ -313,112 +439,4 @@ class AdministradoresController extends AbstractController
         return $this->redirectToRoute('gestion-canciones');
     }
 
-
-
-
-
-
-
-    /**
-     * @Route("/eliminar-admin/{id}", name="eliminar-admin")
-     */
-    public function eliminarAdmin($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $administrador=$em->getRepository(Administradores::class)->find($id);
-        
-        $em->remove($administrador);
-        $em->flush();
-        
-
-        return $this->redirectToRoute('gestion-administradores');
-    }
-
-    /**
-     * @Route("/add-administrador", name="add-administrador")
-     */
-    public function addAdmin(Request $datos)
-    {
-
-        if($_POST){
-
-            $em = $this->getDoctrine()->getManager(); 
-
-            $contrasena = md5($datos->request->get('passwor'));
-            $mail = $datos->request->get('mail');
-
-            //comprobar admin ya existe
-            if(!$existe=$em->getRepository(Administradores::class)->findOneBy(['mail'=> $mail])){
-                
-                $admin= new Administradores();
-                $admin->setMail($mail);
-                $admin->setContrasena($contrasena);
-                
-                $em->persist($admin);
-                $em->flush();
-
-            }
-            else{
-                echo '<script>type="text/javascript">
-                    alert("Este correo ya pertenece a un administrador");
-                </script>';
-            }
-        }
-
-        return $this->render('administradores/add.html.twig');
-    }
-
-
-    /**
-     * @Route("/editar-usuario/{id}", name="editar-usuario")
-     */
-    public function editarUsuario($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $user=$em->getRepository(Usuarios::class)->find($id);
-
-        return $this->render('administradores/usuarioEditar.html.twig',[
-            'usuario' => $user,
-        ]);
-    }
-
-    /**
-     * @Route("/edit-user", name="edit-user")
-     */
-    public function editUser(Request $datos)
-    {
-        if($_POST){
-            $em = $this->getDoctrine()->getManager();
-
-            $id=$datos->request->get('id');
-            $nombre = $datos->request->get('nombre');
-            $mail = $datos->request->get('mail');
-            $contrasena = md5($datos->request->get('passwor'));
-            
-            if( empty($datos->request->get('bloquear')) ) {
-                $bloqueado=false;
-            }else{
-                $bloqueado=true;
-            }
-
-            $usuario=$em->getRepository(Usuarios::class)->find($id);
-            
-            $usuario->setNombre($nombre);
-            $usuario->setMail($mail);
-            $usuario->setContrasena($contrasena);
-            $usuario->setBloqueado($bloqueado);
-
-            
-
-            $em->persist($usuario);
-            $em->flush();
-        }
-        return $this->redirectToRoute('gestion-usuarios');
-
-
-    }
- 
-    
 }
