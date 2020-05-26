@@ -222,7 +222,7 @@ class UsuariosController extends AbstractController
     /**
      * @Route("/eliminar-usuario/{id}", name="eliminar-usuario")
      */
-    public function eliminarUsuario($id)
+    public function eliminarUsuario($id, SessionInterface $session)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -231,8 +231,8 @@ class UsuariosController extends AbstractController
         $perfilesusuario=$em->getRepository(Perfiles::class)->findBy(['usuariosIdusuarios'=>$id]);
         
         foreach ($perfilesusuario as $perfil){
-
-            $relacion=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$pergil->getPerfilesIdperfiles()]);
+            
+            $relacion=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
             foreach ($relacion as $relacionPerfilEtiqueta){
                 $em->remove($relacionPerfilEtiqueta);
             }
@@ -240,9 +240,20 @@ class UsuariosController extends AbstractController
         }
         $em->flush();
         
+        $mensajes=$em->getRepository(Mensajes::class)->findBy(['usuariosIdusuarios'=>$id]);
+
+        foreach ($mensajes as $mensaje){
+            $em->remove($mensaje);
+        }
+        $em->flush();
+
         $em->remove($usuario);
         $em->flush();
         
+        $session->clear(); 
+        $session->invalidate(); 
+        $session->clear(); 
+
         return $this->redirectToRoute('inicio');
     }
     
@@ -394,7 +405,7 @@ class UsuariosController extends AbstractController
     }
 
     /**
-     * @Route("/foro/{id}", name="foro")
+     * @Route("/foro/{id}", name="foro{id}")
      */
     public function getForo($id)
     {
@@ -421,7 +432,7 @@ class UsuariosController extends AbstractController
     }
 
     /**
-     * @Route("/new-comment", name="new-comment")
+     * @Route("/foro", name="foro")
      */
     public function newComment(Request $datos, SessionInterface $session)
     {

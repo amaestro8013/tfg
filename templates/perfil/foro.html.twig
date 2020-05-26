@@ -48,7 +48,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-10">
-            <form id="addComentario" name="addComentario" method="POST" action="{{ path ('new-comment') }}">
+            <form id="addComentario" name="addComentario" method="POST" action="{{ path ('foro') }}">
                     <input class="d-none" type="text" id="idForo" name="idForo" value="{{foro.idForos}}" required/>
                     <input class="d-none" type="text" id="idPerfil" name="idPerfil" value="{{perfil.idperfiles}}" required/>
                     <label for="comentario">Escribe tu mensaje</label>
