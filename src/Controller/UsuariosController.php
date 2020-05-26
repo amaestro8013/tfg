@@ -8,6 +8,8 @@ use App\Entity\Etiquetas;
 use App\Entity\Foros;
 use App\Entity\Perfilesetiquetas;
 use App\Entity\Forosetiquetas;
+use App\Entity\Mensajes;
+
 
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -391,7 +393,72 @@ class UsuariosController extends AbstractController
         ]);
     }
 
-    
+    /**
+     * @Route("/foro/{id}", name="foro")
+     */
+    public function getForo($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $perfil=$em->getRepository(Perfiles::class)->find($id);
+
+        $foro=$em->getRepository(Foros::class)->find($perfil->getForosIdforos());        
+
+        $foroEtiquetas=$em->getRepository(Forosetiquetas::class)->findBy(['forosIdforos'=>$perfil->getForosIdforos()]);
+
+        $etiquetas= array();
+        $i = 0;
+        foreach ($foroEtiquetas as $tag){
+            $etiquetas[$i] = $em->getRepository(Etiquetas::class)->find(['idetiquetas'=>$tag->getEtiquetasIdetiquetas()]);
+            $i = $i +1;
+        }
+
+        $mensajes=$em->getRepository(Mensajes::class)->findBy(['forosIdforos'=>$foro->getIdforos()]);
+
+        return $this->render('perfil/foro.html.twig', [
+            'perfil' => $perfil, 'foro' => $foro, 'etiquetas'=>$etiquetas, 'mensajes'=>$mensajes,
+        ]);
+    }
+
+    /**
+     * @Route("/new-comment", name="new-comment")
+     */
+    public function newComment(Request $datos, SessionInterface $session)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $comentario=$datos->request->get('comentario');
+        
+        $foroId=$datos->request->get('idForo');
+        $foro=$em->getRepository(Foros::class)->find($foroId);        
+
+        $perfilId=$datos->request->get('idPerfil');
+        $perfil=$em->getRepository(Perfiles::class)->find($perfilId);
+        $usuario=$em->getRepository(Usuarios::class)->find($perfil->getUsuariosIdusuarios());
+        
+        $mensaje = new Mensajes();
+        $mensaje->setComentario($comentario);
+        $mensaje->setFecha(date('Y-m-d H:i:s'));
+        $mensaje->setForosIdforos($foro);
+        $mensaje->setUsuariosIdusuarios($usuario);
+
+        $em->persist($mensaje);
+        $em->flush();
+        
+        $foroEtiquetas=$em->getRepository(Forosetiquetas::class)->findBy(['forosIdforos'=>$perfil->getForosIdforos()]);
+        $etiquetas= array();
+        $i = 0;
+        foreach ($foroEtiquetas as $tag){
+            $etiquetas[$i] = $em->getRepository(Etiquetas::class)->find(['idetiquetas'=>$tag->getEtiquetasIdetiquetas()]);
+            $i = $i +1;
+        }
+
+        $mensajes=$em->getRepository(Mensajes::class)->findBy(['forosIdforos'=>$foro->getIdforos()]);
+
+        return $this->render('perfil/foro.html.twig', [
+            'perfil' => $perfil, 'foro' => $foro, 'etiquetas'=>$etiquetas, 'mensajes'=>$mensajes,
+        ]);
+    }
 
     
 

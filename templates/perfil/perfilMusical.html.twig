@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Perfil de usuario{% endblock %}
+{% block title %}Perfil Musical{% endblock %}
 
 {% block body %}
 
@@ -38,7 +38,7 @@
         <a href="/editar-perfil-musical/{{perfil.idperfiles}}"  class="recuadro">
             <p><b>Editar este perfil musical</b></p>  
         </a>
-        <a href="/foro" class="recuadro">
+        <a href="/foro/{{perfil.idperfiles}}" class="recuadro">
             <p><b>Acceder al foro</b></p>
         </a>    
         <a href="/eliminar-perfil-musical/{{perfil.idperfiles}}" class="recuadro">
