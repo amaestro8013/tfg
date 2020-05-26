@@ -32,7 +32,7 @@
         <div class="col-md">
             <h4>Añadir nuevo perfil de gustos musicales</h4>
 
-            <form id="formAddCancion" name="formAddCancion" method="POST" action="{{ path ('add-perfil-musical') }}">
+            <form id="formAddPerfil" name="formAddPerfil" method="POST" action="{{ path ('add-perfil-musical') }}">
                 <input class="d-none" type="text" id="idUsuario" name="idUsuario" required value="{{app.session.get('user').idusuarios }}"/>
                 <div class="col-md-12">
                     <label for="nombre">¿Cómo quieres nombrar a tu nuevo Perfil?</label>
