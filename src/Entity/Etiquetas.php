@@ -29,11 +29,11 @@ class Etiquetas
     private $nombre;
 
     /**
-     * @var bool|null
+     * @var int
      *
-     * @ORM\Column(name="tipoAutor", type="boolean", nullable=true)
+     * @ORM\Column(name="tipo", type="integer", nullable=false)
      */
-    private $tipoautor = '0';
+    private $tipo = '0';
 
     public function getIdetiquetas(): ?int
     {
@@ -52,14 +52,14 @@ class Etiquetas
         return $this;
     }
 
-    public function getTipoautor(): ?bool
+    public function getTipo(): ?int
     {
-        return $this->tipoautor;
+        return $this->tipo;
     }
 
-    public function setTipoautor(?bool $tipoautor): self
+    public function setTipo(int $tipo): self
     {
-        $this->tipoautor = $tipoautor;
+        $this->tipo = $tipo;
 
         return $this;
     }

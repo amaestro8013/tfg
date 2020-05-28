@@ -234,6 +234,10 @@ class AdministradoresController extends AbstractController
             $em->persist($cancion);
             $em->flush();
 
+            //guarda los autores para despues crear la etiqueta de la cancion
+            $etiquetaCancion = array();
+            $i=0;
+
             //Autores y relacion con autores
             $autores=$datos->request->get('autor'); 
             foreach ($autores as $autor){
@@ -255,13 +259,15 @@ class AdministradoresController extends AbstractController
 
                     $em->persist($cancionEtiqueta);
                     $em->flush();
+
+                    $etiquetaCancion[$i]=$cantante->getNombre();
                 }
                 else{
                     //creamos la etiqueta del autor
                     if(!$autor==''){
                         $newTagAutor= new Etiquetas();
                         $newTagAutor->setNombre($autor);
-                        $newTagAutor->setTipoautor(true);
+                        $newTagAutor->setTipo(1);
 
                         $em->persist($newTagAutor);
                         $em->flush();
@@ -289,11 +295,41 @@ class AdministradoresController extends AbstractController
 
                         $em->persist($cancionEtiqueta);
                         $em->flush();
+
+                        $etiquetaCancion[$i]=$autor;
                     }
                 }
+                $i=$i+1;
             }
+
+            //creamos la etiqueta de la cancion
+            $tituloYArtistas = $titulo;
+            $tituloYArtistas .= ' - ';
             
-            //Etiquetas y relacion con etiquetas
+            for ($i = 1; $i <= count($etiquetaCancion); $i++) {
+                if($i == count($etiquetaCancion)){
+                    $tituloYArtistas .= $etiquetaCancion[$i-1];
+                }else{
+                    $tituloYArtistas .= $etiquetaCancion[$i-1].', ';
+                }
+            }
+
+            $newTagCancion= new Etiquetas();
+            $newTagCancion->setNombre($tituloYArtistas);
+            $newTagCancion->setTipo(2);
+
+            $em->persist($newTagCancion);
+            $em->flush();
+
+            $cancionEtiqueta = new Cancionesetiquetas();
+            $cancionEtiqueta->setEtiquetasIdetiquetas($newTagCancion);
+            $cancionEtiqueta->setCancionesIdcanciones($cancion);
+
+            $em->persist($cancionEtiqueta);
+            $em->flush();
+
+            
+            //Etiquetas de generos y relacion con etiquetas
             $etiquetas=$datos->request->get('etiqueta');
             if($etiquetas){
                 foreach ($etiquetas as $id){
@@ -332,7 +368,7 @@ class AdministradoresController extends AbstractController
         }
 
         $em = $this->getDoctrine()->getManager();
-        $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipoautor'=>0]);
+        $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>0]);
 
 
         return $this->render('administradores/cancionAdd.html.twig',[
@@ -351,7 +387,7 @@ class AdministradoresController extends AbstractController
  
         $autores=$this->autoresDeCancion($id);
         $etiquetasSeleccionadas=$this->etiquetasDeCancion($id);
-        $etiquetasTodas=$em->getRepository(Etiquetas::class)->findBy(['tipoautor'=>0]);
+        $etiquetasTodas=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>0]);
 
         return $this->render('administradores/cancionesEditar.html.twig',[
             'cancion' => $cancion, 'autores' => $autores, 'etiquetas' => $etiquetasSeleccionadas, 'etiquetasTodas' => $etiquetasTodas,
@@ -404,7 +440,7 @@ class AdministradoresController extends AbstractController
         foreach ($cancionEtiquetas as $etiquetaID){
 
             $tag=$em->getRepository(Etiquetas::class)->findOneBy(['idetiquetas'=>$etiquetaID->getEtiquetasIdetiquetas()]);
-            if($tag->getTipoAutor()==0){
+            if($tag->getTipo()==0){
                 $etiquetas[$i]=$tag;
             }
             $i = $i +1;
