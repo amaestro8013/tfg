@@ -24,21 +24,21 @@ class Usuarios
     /**
      * @var string
      *
-     * @ORM\Column(name="mail", type="string", length=45, nullable=false)
+     * @ORM\Column(name="mail", type="string", length=50, nullable=false)
      */
     private $mail;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="contrasena", type="string", length=45, nullable=false)
+     * @ORM\Column(name="contrasena", type="string", length=100, nullable=false)
      */
     private $contrasena;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="nombre", type="string", length=45, nullable=false)
+     * @ORM\Column(name="nombre", type="string", length=70, nullable=false)
      */
     private $nombre;
 

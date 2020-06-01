@@ -62,11 +62,13 @@ class UsuariosController extends AbstractController
 
         $seleccionadas=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil]);
 
-        $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipoautor'=>0]);
-        $autores=$em->getRepository(Etiquetas::class)->findBy(['tipoautor'=>1]);
+        $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>0]);
+        $autores=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>1]);
+        $canciones=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>2]);
 
         return $this->render('perfil/editarPerfilMusical.html.twig', [
-            'perfil' => $perfil, 'seleccionadas' => $seleccionadas, 'etiquetas' => $etiquetas, 'autores' => $autores,
+            'perfil' => $perfil, 'seleccionadas' => $seleccionadas, 'etiquetas' => $etiquetas,
+             'autores' => $autores, 'canciones' => $canciones
         ]);
     }
 
@@ -396,11 +398,12 @@ class UsuariosController extends AbstractController
             
         }
 
-        $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipoautor'=>0]);
-        $autores=$em->getRepository(Etiquetas::class)->findBy(['tipoautor'=>1]);
+        $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>0]);
+        $autores=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>1]);
+        $canciones=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>2]);
 
         return $this->render('perfil/addPerfilMusical.html.twig', [
-            'etiquetas' => $etiquetas, 'autores' => $autores
+            'etiquetas' => $etiquetas, 'autores' => $autores, 'canciones' => $canciones
         ]);
     }
 

@@ -24,7 +24,7 @@ class Autores
     /**
      * @var string
      *
-     * @ORM\Column(name="nombre", type="string", length=45, nullable=false)
+     * @ORM\Column(name="nombre", type="string", length=200, nullable=false)
      */
     private $nombre;
 
