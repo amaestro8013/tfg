@@ -8,7 +8,12 @@ use App\Entity\Etiquetas;
 use App\Entity\Foros;
 use App\Entity\Perfilesetiquetas;
 use App\Entity\Forosetiquetas;
+use App\Entity\Cancionesetiquetas;
+use App\Entity\Probabilidades;
 use App\Entity\Mensajes;
+use App\Entity\Autores;
+use App\Entity\Cancionesautores;
+
 
 
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -283,18 +288,11 @@ class UsuariosController extends AbstractController
                 $em->persist($perfil);
                 $em->flush();
                 
-                foreach ($etiquetas as $id){
-                    
-                    $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
+                $this->añadirEtiquetas($etiquetas, $perfil);
+                $canciones=$this->seleccionaCanciones($perfil);
 
-                    $PerfilEtiquetas = new Perfilesetiquetas();
-                    $PerfilEtiquetas->setEtiquetasIdetiquetas($etiqueta);
-                    $PerfilEtiquetas->setPerfilesIdperfiles($perfil);
 
-                    $em->persist($PerfilEtiquetas);
-                    $em->flush();
-                }
-
+                ////
                 $relacionEtiquetasPerfil=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
                 $numRelacionEtiquetasPerfil = count($relacionEtiquetasPerfil);
                 
@@ -388,16 +386,25 @@ class UsuariosController extends AbstractController
                 }
 
 
+                $canciones=$this->seleccionaCanciones($perfil);
+
+                return $this->render('perfil/canciones.html.twig', [
+                    'canciones' => $canciones, 'perfil'=>$perfil
+                ]);
+
 
             }else{
                 echo '<script>type="text/javascript">
                     alert("Selecciona al menos un artista o genero musical");
                 </script>';
+
+                return $this->redirectToRoute('perfil');
             }
 
             
         }
 
+        ////
         $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>0]);
         $autores=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>1]);
         $canciones=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>2]);
@@ -406,6 +413,301 @@ class UsuariosController extends AbstractController
             'etiquetas' => $etiquetas, 'autores' => $autores, 'canciones' => $canciones
         ]);
     }
+
+
+    public function añadirEtiquetas($etiquetas, $perfil)
+    {
+        $em = $this->getDoctrine()->getManager();
+        foreach ($etiquetas as $id){
+            
+            $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
+
+            $PerfilEtiquetas = new Perfilesetiquetas();
+            $PerfilEtiquetas->setEtiquetasIdetiquetas($etiqueta);
+            $PerfilEtiquetas->setPerfilesIdperfiles($perfil);
+
+            $em->persist($PerfilEtiquetas);
+            $em->flush();
+        }
+    }
+
+    public function seleccionaCanciones($perfil)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $canciones=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>2]);
+
+        $etiquetasPerfil=$em->getRepository(PerfilesEtiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
+
+        $aMostrar=array();
+        foreach ($canciones as $etiquetaCancion){
+
+            $relacion=$em->getRepository(Cancionesetiquetas::class)->findBy(['etiquetasIdetiquetas'=>$etiquetaCancion->getIdetiquetas()]);
+
+            foreach ($relacion as $r){
+                $etiquetasCancion=$em->getRepository(Cancionesetiquetas::class)->findBy(['cancionesIdcanciones'=>$r->getCancionesIdcanciones()]);
+            
+
+                foreach ($etiquetasPerfil as $etiqueta){
+                    foreach ($etiquetasCancion as $cancion){
+
+                        if ($cancion->getEtiquetasIdetiquetas() == $etiqueta->getEtiquetasIdetiquetas()){
+                            $aMostrar[$etiquetaCancion->getIdetiquetas()]=$etiquetaCancion;
+                            
+                        }
+                    }
+                }
+            }
+        }
+
+        return $aMostrar;
+    }
+
+    /**
+     * @Route("/buscar", name="buscar")
+     */
+    public function busqueda( Request $datos)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $id=$datos->request->get('perfilId');
+        
+        $perfil = $em->getRepository(Perfiles::class)->find($id);
+
+        //añadimos las etiquetas de las canciones al perfil
+        if($_POST){
+            $etiquetas=$datos->request->get('etiqueta');
+            if($etiquetas){
+                
+                $this->añadirEtiquetas($etiquetas, $perfil);
+
+                $this->calcularProbabilidadesPerfil($perfil);
+
+                $canciones = $this->cancionesAMostrar($perfil);
+
+                return $this->render('inicio/busqueda.html.twig', [
+                    'canciones' => $canciones,
+                ]);
+                
+            }else{
+                echo '<script>type="text/javascript">
+                    alert("Selecciona al menos una canción");
+                </script>';
+                return $this->redirectToRoute('inicio');
+            }
+        }
+         
+        return $this->redirectToRoute('inicio');
+    }
+
+
+
+    public function calcularProbabilidadesPerfil($perfil)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        //obtenemos las canciones que le gustan al usuario a partir del perfil
+        $etiquetasDelPerfil=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
+        
+        $cancionesQueLeGustan=array();
+        $i=0;
+        foreach ($etiquetasDelPerfil as $e){
+            
+            $etiqueta=$em->getRepository(Etiquetas::class)->find($e->getEtiquetasIdetiquetas());
+            if($etiqueta->getTipo()==2){
+                $cancionesQueLeGustan[$i]=$etiqueta;
+                $i = $i +1;
+            }
+        }
+        $numCancionesQueLeGustan = count($cancionesQueLeGustan);
+
+
+        //Obtenemos los generos para crear las probabilidades de este perfil
+        $generos = $em->getRepository(Etiquetas::class)->findBy(['tipo'=>0]);
+
+        foreach ($generos as $genero){
+            $numCancionesPorGenero=0;
+
+            foreach ($cancionesQueLeGustan as $c){
+
+                $relacionEtiquetaCancion = $em->getRepository(Cancionesetiquetas::class)->findOneBy(['etiquetasIdetiquetas'=>$c->getIdetiquetas()]);
+                //var_dump($relacionEtiquetaCancion);die;
+
+                $generosDeLaCancion=$this->generosDeCancion($relacionEtiquetaCancion->getCancionesIdcanciones());
+                
+                foreach ($generosDeLaCancion as $generoDeCancion){
+                    if($genero == $generoDeCancion){
+                        $numCancionesPorGenero=$numCancionesPorGenero +1;;
+                    }
+                }
+            }
+            $probabilidades = new Probabilidades();
+            $probabilidades->setIdperfil($perfil->getIdperfiles());
+            $probabilidades->setIdetiqueta($genero->getIdetiquetas());
+            $probabilidades->setTipo(0);
+            $probabilidades->setProbabilidad($numCancionesPorGenero/$numCancionesQueLeGustan);
+
+            $em->persist($probabilidades);
+            $em->flush();
+            
+        }
+        //Obtenemos los artistas para crear las probabilidades de este perfil
+        $artistas = $em->getRepository(Etiquetas::class)->findBy(['tipo'=>1]);
+
+        foreach ($artistas as $artista){
+            $numCancionesPorArtista=0;
+
+            foreach ($cancionesQueLeGustan as $c){
+
+                $relacionEtiquetaCancion = $em->getRepository(Cancionesetiquetas::class)->findOneBy(['etiquetasIdetiquetas'=>$c->getIdetiquetas()]);
+                //var_dump($relacionEtiquetaCancion);die;
+
+                $artistasDeLaCancion=$this->artistasDeCancion($relacionEtiquetaCancion->getCancionesIdcanciones());
+                
+                foreach ($artistasDeLaCancion as $artistaDeCancion){
+                    if($artista == $artistaDeCancion){
+                        $numCancionesPorArtista=$numCancionesPorArtista +1;;
+                    }
+                }
+            }
+            $probabilidades = new Probabilidades();
+            $probabilidades->setIdperfil($perfil->getIdperfiles());
+            $probabilidades->setIdetiqueta($artista->getIdetiquetas());
+            $probabilidades->setTipo(1);
+            $probabilidades->setProbabilidad($numCancionesPorArtista/$numCancionesQueLeGustan);
+
+            $em->persist($probabilidades);
+            $em->flush();
+
+        }
+    }
+
+    public function generosDeCancion($id){
+
+        $em = $this->getDoctrine()->getManager();
+
+        $cancionEtiquetas=$em->getRepository(Cancionesetiquetas::class)->findBy(['cancionesIdcanciones'=>$id]);
+        
+        $etiquetas = array();
+        $i = 0;
+        foreach ($cancionEtiquetas as $etiquetaID){
+
+            $tag=$em->getRepository(Etiquetas::class)->findOneBy(['idetiquetas'=>$etiquetaID->getEtiquetasIdetiquetas()]);
+            if($tag->getTipo()==0){
+                $etiquetas[$i]=$tag;
+                $i = $i +1;
+            }  
+        }
+
+        return $etiquetas;
+    }
+
+    public function artistasDeCancion($id){
+
+        $em = $this->getDoctrine()->getManager();
+
+        $cancionEtiquetas=$em->getRepository(Cancionesetiquetas::class)->findBy(['cancionesIdcanciones'=>$id]);
+        
+        $etiquetas = array();
+        $i = 0;
+        foreach ($cancionEtiquetas as $etiquetaID){
+
+            $tag=$em->getRepository(Etiquetas::class)->findOneBy(['idetiquetas'=>$etiquetaID->getEtiquetasIdetiquetas()]);
+            if($tag->getTipo()==1){
+                $etiquetas[$i]=$tag;
+                $i = $i +1;
+            }  
+        }
+        return $etiquetas;
+    }
+
+
+    public function cancionesAMostrar($perfil){
+
+        $em = $this->getDoctrine()->getManager();
+
+        $probabilidadesDelPerfil = $em->getRepository(Probabilidades::class)->findBy(['idperfil'=>$perfil->getIdperfiles()]);
+
+        $generos=array();
+        $i=0;
+        $artistas=array();
+        $j=0;
+
+        foreach ($probabilidadesDelPerfil as $p){
+            if ($p->getTipo()==0){
+                $generos[$i]=$p;
+                $i=$i+1;
+            }
+            elseif ($p->getTipo()==1){
+                $artistas[$j]=$p;
+                $j=$j+1;
+            }
+        }
+
+        $mayorProbabilidades=array();
+        $idGenero=array();
+        $idArtista=array();
+
+        $numCanciones=5;
+
+        for($i = 1; $i <= $numCanciones; $i++){
+            $mayorProbabilidades[$i]=0;
+        }
+
+        foreach ($generos as $g){
+            foreach ($artistas as $a){
+                $probabilidad= $g->getProbabilidad() * $a->getProbabilidad();
+
+                for($i = 1; $i <= $numCanciones; $i++){
+                    if ($mayorProbabilidades[$i] < $probabilidad){
+                        $mayorProbabilidades[$i] = $probabilidad;
+                        $idGenero[$i]= $g->getIdetiqueta();
+                        $idArtista[$i]=$a->getIdetiqueta();
+                    }
+                }
+            }   
+        }
+        
+
+        $cancionesARecomendar=array();
+
+        for($i = 1; $i <= $numCanciones; $i++){
+
+            $autor=$em->getRepository(Autores::class)->findOneBy(['etiquetasIdetiquetas'=>$idArtista[$i]]);
+            $cancionesAutor=$em->getRepository(Cancionesautores::class)->findBy(['autoresIdautores'=>$autor->getIdautores()]);
+
+            $cancionesGenero=$em->getRepository(Cancionesetiquetas::class)->findBy(['etiquetasIdetiquetas'=>$idGenero[$i]]);
+
+            foreach ($cancionesAutor as $CA){
+                foreach ($cancionesGenero as $CG){
+                    if ($CA->getCancionesIdcanciones() == $CG->getCancionesIdcanciones()){
+                        $cancionesARecomendar[$CA->getCancionesIdcanciones()->getIdcanciones()]=$CA->getCancionesIdcanciones();
+                    }
+                }
+            }
+        }
+
+        $canciones=array();
+        
+        foreach ($cancionesARecomendar as $cancion){
+            
+            $etiquetasDeLaCancion = $em->getRepository(Cancionesetiquetas::class)->findBy(['cancionesIdcanciones'=>$cancion->getIdcanciones()]);
+
+            foreach ($etiquetasDeLaCancion as $e){
+                $etiqueta = $em->getRepository(Etiquetas::class)->find($e->getEtiquetasIdetiquetas());
+
+                if ($etiqueta->getTipo()==2){
+                    $canciones[$etiqueta->getIdetiquetas()]=$etiqueta;
+                }
+    
+            }
+        }
+
+        return $canciones;
+
+        
+    }
+
 
     /**
      * @Route("/foro/{id}", name="foro{id}")
