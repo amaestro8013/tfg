@@ -60,9 +60,19 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-8 busqueda">
-            {# CONTENIDO DE LA BUSQUEDA SEGUN EL ALGORITMO #}
-        </div> 
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <h3> Estos han sido los resultados</h3>
+            <table class="table table-striped">
+                <tbody>
+                    {% for c in canciones %}
+                        <tr>
+                            <th scope="row">{{c.nombre}}</th>
+                        </tr>
+                    {% endfor %} 
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

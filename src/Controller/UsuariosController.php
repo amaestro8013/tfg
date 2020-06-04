@@ -51,8 +51,10 @@ class UsuariosController extends AbstractController
 
         $etiquetas=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil]);
 
+        $canciones = $this->cancionesAMostrar($perfil);
+
         return $this->render('perfil/perfilMusical.html.twig', [
-            'perfil' => $perfil, 'etiquetas' => $etiquetas,
+            'perfil' => $perfil, 'etiquetas' => $etiquetas, 'canciones' => $canciones,
         ]);
     }
 
@@ -69,11 +71,11 @@ class UsuariosController extends AbstractController
 
         $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>0]);
         $autores=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>1]);
-        $canciones=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>2]);
+        
 
         return $this->render('perfil/editarPerfilMusical.html.twig', [
             'perfil' => $perfil, 'seleccionadas' => $seleccionadas, 'etiquetas' => $etiquetas,
-             'autores' => $autores, 'canciones' => $canciones
+             'autores' => $autores, 
         ]);
     }
 
@@ -87,12 +89,137 @@ class UsuariosController extends AbstractController
             $em = $this->getDoctrine()->getManager(); 
 
             $id = $datos->request->get('idPerfil');
-            
-            $this->addPerfilMusical($datos, $session);
 
             $this->eliminarPerfilMusical($id);
+
+            
+
+            $id=$datos->request->get('idUsuario');
+            $usuario= $em->getRepository(Usuarios::class)->find($id);
+            $nombre=$datos->request->get('nombre');
+            $em->persist($usuario);
+
+            $etiquetas=$datos->request->get('etiqueta');
+            if($etiquetas){
+                
+                $perfil = new Perfiles();
+                $perfil->setNombre($nombre);
+                $em->persist($perfil);
+                $perfil->setUsuariosIdusuarios($usuario);
+                $em->persist($perfil);
+                $em->flush();
+                
+                $this->añadirEtiquetas($etiquetas, $perfil);
+                $canciones=$this->seleccionaCanciones($perfil);
+
+
+                //crear foro si existe o si no asociarlo a este perfil
+                $this->foro($perfil ,$etiquetas);
+
+                $canciones=$this->seleccionaCanciones($perfil);
+
+                return $this->render('perfil/canciones.html.twig', [
+                    'canciones' => $canciones, 'perfil'=>$perfil,
+                ]);
+
+            }else{
+                echo '<script>type="text/javascript">
+                    alert("Selecciona al menos un artista o genero musical");
+                </script>';
+
+                return $this->redirectToRoute('perfil');
+            }
+
         }
         return $this->redirectToRoute('perfil');
+    }
+
+    public function foro($perfil, $etiquetas){
+        $em = $this->getDoctrine()->getManager(); 
+
+        $relacionEtiquetasPerfil=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
+        $numRelacionEtiquetasPerfil = count($relacionEtiquetasPerfil);
+        
+        
+        $existe=0;
+
+        $foros=$em->getRepository(Foros::class)->findAll();
+
+        if($foros){
+            foreach ($foros as $foro){
+                $relacionEtiquetasForo=$em->getRepository(Forosetiquetas::class)->findBy(['forosIdforos'=>$foro->getIdforos()]);
+                $numRelacionEtiquetasForo = count($relacionEtiquetasForo);
+
+                $contador=0;
+
+                if ($numRelacionEtiquetasPerfil == $numRelacionEtiquetasForo){
+
+                    foreach ($relacionEtiquetasForo as $etiquetaForo){
+                        $F=$em->getRepository(Etiquetas::class)->find($etiquetaForo->getEtiquetasIdetiquetas());
+
+                        foreach ($relacionEtiquetasPerfil as $etiquetaPerfil){
+                            $P=$em->getRepository(Etiquetas::class)->find($etiquetaPerfil->getEtiquetasIdetiquetas());
+        
+                            if( $P->getIdetiquetas()==$F->getIdetiquetas() ){
+                                $contador = $contador +1;
+                            }
+                        }
+                    }
+                    
+                    if ($contador == $numRelacionEtiquetasForo){
+                        $existe=1;
+                        $perfil->setForosIdforos($foro);
+                        $em->persist($perfil);
+                        $em->flush();
+
+                        
+                    }else{
+                        $contador = 0;
+                    }
+                }
+            }
+            if ($existe==0){
+                $foro = new Foros();
+                $em->persist($foro);
+                $em->flush();
+
+                $perfil->setForosIdforos($foro);
+                $em->persist($perfil);
+                $em->flush();
+
+                foreach ($etiquetas as $id){
+                    
+                    $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
+
+                    $ForosEtiquetas = new Forosetiquetas();
+                    $ForosEtiquetas->setEtiquetasIdetiquetas($etiqueta);
+                    $ForosEtiquetas->setForosIdforos($foro);
+
+                    $em->persist($ForosEtiquetas);
+                    $em->flush();
+                }
+            }
+        }else{
+            $foro = new Foros();
+            $em->persist($foro);
+            $em->flush();
+
+            $perfil->setForosIdforos($foro);
+            $em->persist($perfil);
+            $em->flush();
+
+            foreach ($etiquetas as $id){
+                
+                $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
+
+                $ForosEtiquetas = new Forosetiquetas();
+                $ForosEtiquetas->setEtiquetasIdetiquetas($etiqueta);
+                $ForosEtiquetas->setForosIdforos($foro);
+
+                $em->persist($ForosEtiquetas);
+                $em->flush();
+            }
+        }
     }
 
     /**
@@ -289,109 +416,17 @@ class UsuariosController extends AbstractController
                 $em->flush();
                 
                 $this->añadirEtiquetas($etiquetas, $perfil);
-                $canciones=$this->seleccionaCanciones($perfil);
 
-
-                ////
-                $relacionEtiquetasPerfil=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
-                $numRelacionEtiquetasPerfil = count($relacionEtiquetasPerfil);
+                $this->foro($perfil, $etiquetas);
                 
-                $contador=0;
-                $existe=0;
 
-                $foros=$em->getRepository(Foros::class)->findAll();
-
-                if($foros){
-                    foreach ($foros as $foro){
-                        $relacionEtiquetasForo=$em->getRepository(Forosetiquetas::class)->findBy(['forosIdforos'=>$foro->getIdforos()]);
-                        $numRelacionEtiquetasForo = count($relacionEtiquetasForo);
-
-                        if ($numRelacionEtiquetasPerfil == $numRelacionEtiquetasForo){
-
-                            foreach ($relacionEtiquetasForo as $etiquetaForo){
-                                $F=$em->getRepository(Etiquetas::class)->find($etiquetaForo->getEtiquetasIdetiquetas());
-
-                                foreach ($relacionEtiquetasPerfil as $etiquetaPerfil){
-                                    $P=$em->getRepository(Etiquetas::class)->find($etiquetaPerfil->getEtiquetasIdetiquetas());
                 
-                                    if( $P->getIdetiquetas()==$F->getIdetiquetas() ){
-                                        $contador = $contador +1;
-                                    }
-                                }
-                            }
-                            
-                            if ($contador == $numRelacionEtiquetasForo){
-                                $existe=1;
-                                $perfil->setForosIdforos($foro);
-                                $em->persist($perfil);
-                                $em->flush();
-
-                                foreach ($etiquetas as $id){
-                        
-                                    $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
-                
-                                    $ForosEtiquetas = new Forosetiquetas();
-                                    $ForosEtiquetas->setEtiquetasIdetiquetas($etiqueta);
-                                    $ForosEtiquetas->setForosIdforos($foro);
-                
-                                    $em->persist($ForosEtiquetas);
-                                    $em->flush();
-                                }   
-                            }else{
-                                $contador = 0;
-                            }
-                        }
-                    }
-                    if ($existe==0){
-                        $foro = new Foros();
-                        $em->persist($foro);
-                        $em->flush();
-
-                        $perfil->setForosIdforos($foro);
-                        $em->persist($perfil);
-                        $em->flush();
-        
-                        foreach ($etiquetas as $id){
-                            
-                            $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
-        
-                            $ForosEtiquetas = new Forosetiquetas();
-                            $ForosEtiquetas->setEtiquetasIdetiquetas($etiqueta);
-                            $ForosEtiquetas->setForosIdforos($foro);
-        
-                            $em->persist($ForosEtiquetas);
-                            $em->flush();
-                        }
-                    }
-                }else{
-                    $foro = new Foros();
-                    $em->persist($foro);
-                    $em->flush();
-
-                    $perfil->setForosIdforos($foro);
-                    $em->persist($perfil);
-                    $em->flush();
-    
-                    foreach ($etiquetas as $id){
-                        
-                        $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
-    
-                        $ForosEtiquetas = new Forosetiquetas();
-                        $ForosEtiquetas->setEtiquetasIdetiquetas($etiqueta);
-                        $ForosEtiquetas->setForosIdforos($foro);
-    
-                        $em->persist($ForosEtiquetas);
-                        $em->flush();
-                    }
-                }
-
 
                 $canciones=$this->seleccionaCanciones($perfil);
 
                 return $this->render('perfil/canciones.html.twig', [
-                    'canciones' => $canciones, 'perfil'=>$perfil
+                    'canciones' => $canciones, 'perfil'=>$perfil,
                 ]);
-
 
             }else{
                 echo '<script>type="text/javascript">
@@ -404,13 +439,11 @@ class UsuariosController extends AbstractController
             
         }
 
-        ////
         $etiquetas=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>0]);
         $autores=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>1]);
-        $canciones=$em->getRepository(Etiquetas::class)->findBy(['tipo'=>2]);
 
         return $this->render('perfil/addPerfilMusical.html.twig', [
-            'etiquetas' => $etiquetas, 'autores' => $autores, 'canciones' => $canciones
+            'etiquetas' => $etiquetas, 'autores' => $autores,
         ]);
     }
 
