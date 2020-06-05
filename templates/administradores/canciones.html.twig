@@ -28,44 +28,50 @@
 
 </style>
 
+{% if app.session.get('quien') == 'administrador' %}
 
-<div class="container">
-    <div class="row">
-        <a href="/add-cancion"  class="recuadro-full">
-            <p><b>Añadir Nueva Cancion</b></p>  
-        </a>
+    <div class="container">
+        <div class="row">
+            <a href="/add-cancion"  class="recuadro-full">
+                <p><b>Añadir Nueva Cancion</b></p>  
+            </a>
+        </div>
     </div>
-</div>
 
-<div class="container">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">Titulo</th>
-                <th scope="col">Autores</th>
-                <th scope="col">Editar</th>
-                <th scope="col">Eliminar</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for c in canciones %}
+    <div class="container">
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <th scope="row">{{c[0].cancionesIdcanciones.titulo}}</th>
-                    <th scope="row">
-                        {% for a in c %}
-                            {{a.autoresIdautores.nombre}}
-                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        {% endfor %}
-                    </th>
-                    <td>
-                        <a class="btn btn-light" href="editar-cancion/{{c[0].cancionesIdcanciones.idCanciones}}">Editar</a>
-                    </td>
-                    <td>
-                        <a class="btn btn-light" href="eliminar-cancion/{{c[0].cancionesIdcanciones.idCanciones}}">Eliminar</a>
-                    </td>
+                    <th scope="col">Titulo</th>
+                    <th scope="col">Autores</th>
+                    <th scope="col">Editar</th>
+                    <th scope="col">Eliminar</th>
                 </tr>
-            {% endfor %}    
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+                {% for c in canciones %}
+                    <tr>
+                        <th scope="row">{{c[0].cancionesIdcanciones.titulo}}</th>
+                        <th scope="row">
+                            {% for a in c %}
+                                {{a.autoresIdautores.nombre}}
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            {% endfor %}
+                        </th>
+                        <td>
+                            <a class="btn btn-light" href="editar-cancion/{{c[0].cancionesIdcanciones.idCanciones}}">Editar</a>
+                        </td>
+                        <td>
+                            <a class="btn btn-light" href="eliminar-cancion/{{c[0].cancionesIdcanciones.idCanciones}}">Eliminar</a>
+                        </td>
+                    </tr>
+                {% endfor %}    
+            </tbody>
+        </table>
+    </div>
+
+{% else  %}
+    <p>No eres administrador, por favor inicia sesión como administrador</p>
+{% endif  %}
+
 {% endblock %}

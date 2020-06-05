@@ -27,37 +27,44 @@
 
 </style>
 
-<div class="container">
-    <div class="row">
-        <a href="/gestion-administradores"  class="recuadro-full">
-            <p><b>Gestionar Administradores</b></p>  
-        </a>
-    </div>
-</div>
 
+{% if app.session.get('quien') == 'administrador' %}
 
-<div class="container">
-    <div class="row">
-        <div class="col-md">
-            <h4>Registrar nuevo Administrador</h4>
-
-            <form id="formRegisAdmin" name="formRegisAdmin" method="POST" action="{{ path ('add-administrador') }}">
-                
-                <label for="email">Email</label>
-                <div class="espacio"></div>
-                <input class="rellenar" type="email" id="mail" name="mail"  required />
-                <div class="espacio2"></div>
-                <label for="passwor">Contraseña</label>
-                <div class="espacio"></div>
-                <input class="rellenar" type="password" id="passwor" name="passwor" required />
-                <div class="espacio2"></div>
-                <input class="btn btn-light" type="submit" id="enviar" name="submit" />
-                
-
-            </form>
+    <div class="container">
+        <div class="row">
+            <a href="/gestion-administradores"  class="recuadro-full">
+                <p><b>Gestionar Administradores</b></p>  
+            </a>
         </div>
     </div>
-</div>
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md">
+                <h4>Registrar nuevo Administrador</h4>
+
+                <form id="formRegisAdmin" name="formRegisAdmin" method="POST" action="{{ path ('add-administrador') }}">
+                    
+                    <label for="email">Email</label>
+                    <div class="espacio"></div>
+                    <input class="rellenar" type="email" id="mail" name="mail"  required />
+                    <div class="espacio2"></div>
+                    <label for="passwor">Contraseña</label>
+                    <div class="espacio"></div>
+                    <input class="rellenar" type="password" id="passwor" name="passwor" required />
+                    <div class="espacio2"></div>
+                    <input class="btn btn-light" type="submit" id="enviar" name="submit" />
+                    
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% else  %}
+    <p>No eres administrador, por favor inicia sesión como administrador</p>
+{% endif  %}
 
 
 {% endblock %}  

@@ -165,11 +165,14 @@ class InicioController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
 
+        //obtenemos el ID del perfil del que vamos a realizar la busqueda de canciones similares
         $id=$datos->request->get('perfilId');
         
+        //obtenemos el perfil
         $perfil = $em->getRepository(Perfiles::class)->find($id);
 
-        //añadimos las etiquetas de las canciones al perfil
+        //si es la primera vez que se crea el perfil (petición de tipo POST)
+        //añadimos las etiquetas de las canciones seleccionadas al perfil
         if($_POST){
             $etiquetas=$datos->request->get('etiqueta');
             if($etiquetas){
@@ -191,7 +194,6 @@ class InicioController extends AbstractController
                 return $this->redirectToRoute('inicio');
             }
         }
-         
         return $this->redirectToRoute('inicio');
     }
 
@@ -279,6 +281,7 @@ class InicioController extends AbstractController
 
         $em = $this->getDoctrine()->getManager();
 
+        //obtenemos las probabilidades calculadas anteriormente, de este determinado perfil
         $probabilidadesDelPerfil = $em->getRepository(Probabilidades::class)->findBy(['idperfil'=>$perfil->getIdperfiles()]);
 
         $generos=array();
@@ -286,6 +289,7 @@ class InicioController extends AbstractController
         $artistas=array();
         $j=0;
 
+        //dividimos las probabilidades en probabilidades de generos y probabilidades de artistas
         foreach ($probabilidadesDelPerfil as $p){
             if ($p->getTipo()==0){
                 $generos[$i]=$p;
@@ -297,6 +301,7 @@ class InicioController extends AbstractController
             }
         }
 
+        //inicializamos los arrays que almacenarán la información para despues calcular las canciones
         $mayorProbabilidades=array();
         $idGenero=array();
         $idArtista=array();
@@ -307,6 +312,7 @@ class InicioController extends AbstractController
             $mayorProbabilidades[$i]=0;
         }
 
+        //multiplicamos cada probabilidad entre si y nos quedamos con las 5 mayores
         foreach ($generos as $g){
             foreach ($artistas as $a){
                 $probabilidad= $g->getProbabilidad() * $a->getProbabilidad();
@@ -315,22 +321,26 @@ class InicioController extends AbstractController
                     if ($mayorProbabilidades[$i] < $probabilidad){
                         $mayorProbabilidades[$i] = $probabilidad;
                         $idGenero[$i]= $g->getIdetiqueta();
-                        $idArtista[$i]=$a->getIdetiqueta();
+                        $idArtista[$i]= $a->getIdetiqueta();
                     }
                 }
             }   
         }
-        
 
         $cancionesARecomendar=array();
 
+        //para cada una de las 5 mayores probabilidades calculadas anteriormente
         for($i = 1; $i <= $numCanciones; $i++){
 
+            //obtenemos las canciones cantadas por el artista seleccionado
             $autor=$em->getRepository(Autores::class)->findOneBy(['etiquetasIdetiquetas'=>$idArtista[$i]]);
             $cancionesAutor=$em->getRepository(Cancionesautores::class)->findBy(['autoresIdautores'=>$autor->getIdautores()]);
 
+            ////obtenemos las canciones del genero seleccionado
             $cancionesGenero=$em->getRepository(Cancionesetiquetas::class)->findBy(['etiquetasIdetiquetas'=>$idGenero[$i]]);
 
+
+            //almacenamos en un array las canciones que son del autor y el genero calculados anteriormente
             foreach ($cancionesAutor as $CA){
                 foreach ($cancionesGenero as $CG){
                     if ($CA->getCancionesIdcanciones() == $CG->getCancionesIdcanciones()){
@@ -340,6 +350,8 @@ class InicioController extends AbstractController
             }
         }
 
+
+        //por ultimo, obtenemos la estiqueta de la cancion en concreto, por que hes mucho mas manejable en las plantillas
         $canciones=array();
         
         foreach ($cancionesARecomendar as $cancion){

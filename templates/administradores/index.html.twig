@@ -28,21 +28,28 @@
 </style>
 
 
-<div class="container">
-    <div class="row">
-        <a href="/gestion-administradores"  class="recuadro">
-            <p><b>Gestionar Administradores</b></p>  
-        </a>
-        <a href="/gestion-usuarios" class="recuadro">
-            <p><b>Gestionar Usuarios</b></p>
-        </a>
-        <a href="/gestion-canciones" title="746 - Gestión de atributos y stock" class="recuadro">
-            <p><b>Gestionar Canciones</b></p>
-        </a>
-        <a href="/gestion-busqueda" title="660 - Gestión de pedidos" class="recuadro">
-            <p><b>Gestionar busqueda</b></p>
-        </a>
-        
+{% if app.session.get('quien') == 'administrador' %}
+    <div class="container">
+        <div class="row">
+            <a href="/gestion-administradores"  class="recuadro">
+                <p><b>Gestionar Administradores</b></p>  
+            </a>
+            <a href="/gestion-usuarios" class="recuadro">
+                <p><b>Gestionar Usuarios</b></p>
+            </a>
+            <a href="/gestion-canciones" title="746 - Gestión de atributos y stock" class="recuadro">
+                <p><b>Gestionar Canciones</b></p>
+            </a>
+            <a href="/gestion-busqueda" title="660 - Gestión de pedidos" class="recuadro">
+                <p><b>Gestionar busqueda</b></p>
+            </a>
+            
+        </div>
     </div>
-</div>
+
+{% else  %}
+    <p>No eres administrador, por favor inicia sesión como administrador</p>
+{% endif  %}
+
+
 {% endblock %}

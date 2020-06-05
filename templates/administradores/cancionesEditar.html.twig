@@ -27,203 +27,207 @@
 
 </style>
 
-<div class="container">
-    <div class="row">
-        <a href="/gestion-canciones"  class="recuadro-full">
-            <p><b>Gestionar Canciones</b></p>  
-        </a>
+
+{% if app.session.get('quien') == 'administrador' %}
+
+    <div class="container">
+        <div class="row">
+            <a href="/gestion-canciones"  class="recuadro-full">
+                <p><b>Gestionar Canciones</b></p>  
+            </a>
+        </div>
     </div>
-</div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md">
-            <h4>Editar canción</h4>
+    <div class="container">
+        <div class="row">
+            <div class="col-md">
+                <h4>Editar canción</h4>
 
-            <form id="formEditCancion" name="formEditCancion" method="POST" action="{{ path ('edit-cancion') }}">
-                
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md">
-                                
-                            <input class="d-none" type="text" name="id" required value="{{cancion.idcanciones}}"/>
-                            <label for="email">Título</label>
-                            <div class="espacio"></div>
-                            <input class="rellenar" type="text" id="titulo" name="titulo" required value="{{cancion.titulo}}"/>
-                            <div class="espacio2"></div>
+                <form id="formEditCancion" name="formEditCancion" method="POST" action="{{ path ('edit-cancion') }}">
+                    
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md">
+                                    
+                                <input class="d-none" type="text" name="id" required value="{{cancion.idcanciones}}"/>
+                                <label for="email">Título</label>
+                                <div class="espacio"></div>
+                                <input class="rellenar" type="text" id="titulo" name="titulo" required value="{{cancion.titulo}}"/>
+                                <div class="espacio2"></div>
 
-                            <div class="field_wrapper">
-                                <div>
+                                <div class="field_wrapper">
+                                    <div>
 
-                                    <label for="email">Autor/Autores</label>
-                                    <div class="espacio"></div>
+                                        <label for="email">Autor/Autores</label>
+                                        <div class="espacio"></div>
 
-                                        {% set i = '0' %}
-                                    {% for a in autores %}
-                                        {% set i = i + 1 %}
-                                        {% if i == 1 %}
-                                            <input class="rellenar" type="text" name="autor[]" required value="{{a.nombre}}"/>
-                                            <a href="javascript:void(0);" class="add_button">
-                                                <svg class="bi bi-plus" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                    <path fill-rule="evenodd" d="M8 3.5a.5.5 0 01.5.5v4a.5.5 0 01-.5.5H4a.5.5 0 010-1h3.5V4a.5.5 0 01.5-.5z" clip-rule="evenodd"/>
-                                                    <path fill-rule="evenodd" d="M7.5 8a.5.5 0 01.5-.5h4a.5.5 0 010 1H8.5V12a.5.5 0 01-1 0V8z" clip-rule="evenodd"/>
-                                                </svg>
-                                            </a>
-                                        {% else %}
-                                            <div>
+                                            {% set i = '0' %}
+                                        {% for a in autores %}
+                                            {% set i = i + 1 %}
+                                            {% if i == 1 %}
                                                 <input class="rellenar" type="text" name="autor[]" required value="{{a.nombre}}"/>
-                                                <a href="javascript:void(0);" class="remove_button">
-                                                    <svg class="bi bi-dash" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd" d="M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1H4a.5.5 0 01-.5-.5z" clip-rule="evenodd"/>
+                                                <a href="javascript:void(0);" class="add_button">
+                                                    <svg class="bi bi-plus" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd" d="M8 3.5a.5.5 0 01.5.5v4a.5.5 0 01-.5.5H4a.5.5 0 010-1h3.5V4a.5.5 0 01.5-.5z" clip-rule="evenodd"/>
+                                                        <path fill-rule="evenodd" d="M7.5 8a.5.5 0 01.5-.5h4a.5.5 0 010 1H8.5V12a.5.5 0 01-1 0V8z" clip-rule="evenodd"/>
                                                     </svg>
                                                 </a>
-                                            </div>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            <div class="espacio2"></div>
-                            <label for="email">Duración</label>
-                            <div class="espacio"></div>
-                            <input class="rellenar" type="text" id="duracion" name="duracion" value="{{cancion.duracion}}"/>
-                            <div class="espacio2"></div>
-                            <label for="email">Álbum</label>
-                            <div class="espacio"></div>
-                            <input class="rellenar" type="text" id="album" name="album" value="{{cancion.album}}"/>
-                            <div class="espacio2"></div>
-                            <label for="email">Fecha</label>
-                            <div class="espacio"></div>
-                            <input class="rellenar" type="date" id="fecha" name="fecha" value="{{cancion.fecha}}"/>
-                            <div class="espacio2"></div>
-
-                        </div>
-                        <div class="col-md">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Etiquetas</th>
-                                        <th scope="col">Seleccionar</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% set bandera = 0 %}
-                                    {% for eT in etiquetasTodas %}
-                                        {% set bandera = 0 %}
-                                        <tr>
-                                            <th scope="row">{{eT.nombre}}</th>
-                                            <td>
-                                                {% for e in etiquetas %}
-                                                    {% if eT.nombre == e.nombre %}
-                                                        <input class="selectEtiqueta" type="checkbox" name="etiqueta[]" value="{{eT.idEtiquetas}}"} checked/>
-                                                        {% set bandera = 1 %}
-                                                    {% endif %}
-                                                {% endfor %}
-
-                                                {% if bandera == 0 %}
-                                                    <input class="selectEtiqueta" type="checkbox" name="etiqueta[]" value="{{eT.idEtiquetas}}"} />
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %} 
-                                    <tr>
-                                        <th scope="row">Añadir</th>
-                                        <td>
-                                            <div class="field_wrapper_etiqueta">
+                                            {% else %}
                                                 <div>
-                                                    <input class="rellenar" type="text" name="newEtiqueta[]"/>
-                                                    <a href="javascript:void(0);" class="add_etiqueta">
-                                                        <svg class="bi bi-plus" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                            <path fill-rule="evenodd" d="M8 3.5a.5.5 0 01.5.5v4a.5.5 0 01-.5.5H4a.5.5 0 010-1h3.5V4a.5.5 0 01.5-.5z" clip-rule="evenodd"/>
-                                                            <path fill-rule="evenodd" d="M7.5 8a.5.5 0 01.5-.5h4a.5.5 0 010 1H8.5V12a.5.5 0 01-1 0V8z" clip-rule="evenodd"/>
+                                                    <input class="rellenar" type="text" name="autor[]" required value="{{a.nombre}}"/>
+                                                    <a href="javascript:void(0);" class="remove_button">
+                                                        <svg class="bi bi-dash" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                            <path fill-rule="evenodd" d="M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1H4a.5.5 0 01-.5-.5z" clip-rule="evenodd"/>
                                                         </svg>
                                                     </a>
                                                 </div>
-                                            </div>
-                                        </td>
-                                    </tr>   
-                                </tbody>
-                            </table>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="espacio2"></div>
+                                <label for="email">Duración</label>
+                                <div class="espacio"></div>
+                                <input class="rellenar" type="text" id="duracion" name="duracion" value="{{cancion.duracion}}"/>
+                                <div class="espacio2"></div>
+                                <label for="email">Álbum</label>
+                                <div class="espacio"></div>
+                                <input class="rellenar" type="text" id="album" name="album" value="{{cancion.album}}"/>
+                                <div class="espacio2"></div>
+                                <label for="email">Fecha</label>
+                                <div class="espacio"></div>
+                                <input class="rellenar" type="date" id="fecha" name="fecha" value="{{cancion.fecha}}"/>
+                                <div class="espacio2"></div>
+
+                            </div>
+                            <div class="col-md">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Etiquetas</th>
+                                            <th scope="col">Seleccionar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% set bandera = 0 %}
+                                        {% for eT in etiquetasTodas %}
+                                            {% set bandera = 0 %}
+                                            <tr>
+                                                <th scope="row">{{eT.nombre}}</th>
+                                                <td>
+                                                    {% for e in etiquetas %}
+                                                        {% if eT.nombre == e.nombre %}
+                                                            <input class="selectEtiqueta" type="checkbox" name="etiqueta[]" value="{{eT.idEtiquetas}}"} checked/>
+                                                            {% set bandera = 1 %}
+                                                        {% endif %}
+                                                    {% endfor %}
+
+                                                    {% if bandera == 0 %}
+                                                        <input class="selectEtiqueta" type="checkbox" name="etiqueta[]" value="{{eT.idEtiquetas}}"} />
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %} 
+                                        <tr>
+                                            <th scope="row">Añadir</th>
+                                            <td>
+                                                <div class="field_wrapper_etiqueta">
+                                                    <div>
+                                                        <input class="rellenar" type="text" name="newEtiqueta[]"/>
+                                                        <a href="javascript:void(0);" class="add_etiqueta">
+                                                            <svg class="bi bi-plus" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                                <path fill-rule="evenodd" d="M8 3.5a.5.5 0 01.5.5v4a.5.5 0 01-.5.5H4a.5.5 0 010-1h3.5V4a.5.5 0 01.5-.5z" clip-rule="evenodd"/>
+                                                                <path fill-rule="evenodd" d="M7.5 8a.5.5 0 01.5-.5h4a.5.5 0 010 1H8.5V12a.5.5 0 01-1 0V8z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>   
+                                    </tbody>
+                                </table>
 
 
-                        </div>
+                            </div>
 
-
-
-
-
-                <input class="btn btn-light" type="submit" id="enviar" name="submit" />
-                
-            </form>
+                    <input class="btn btn-light" type="submit" id="enviar" name="submit" />
+                    
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
 
-<script type="text/javascript">
 
-//https://www.codexworld.com/add-remove-input-fields-dynamically-using-jquery/
+    <script type="text/javascript">
 
-//AUTORES
-$(document).ready(function(){
-//    var maxField = 10; //Input fields increment limitation
-    var addButton = $('.add_button'); //Add button selector
-    var wrapper = $('.field_wrapper'); //Input field wrapper
-    
-    var fieldHTML = 
-        '<div><input class="rellenar" type="text" name="autor[]" required/><a href="javascript:void(0);" class="remove_button"><svg class="bi bi-dash" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1H4a.5.5 0 01-.5-.5z" clip-rule="evenodd"/></svg></a></div>';
-        //New input field html 
+    //https://www.codexworld.com/add-remove-input-fields-dynamically-using-jquery/
+
+    //AUTORES
+    $(document).ready(function(){
+    //    var maxField = 10; //Input fields increment limitation
+        var addButton = $('.add_button'); //Add button selector
+        var wrapper = $('.field_wrapper'); //Input field wrapper
         
-    var x = 1; //Initial field counter is 1
-    
-    //Once add button is clicked
-    $(addButton).click(function(){
-        //Check maximum number of input fields
-//        if(x < maxField){ 
-//            x++; //Increment field counter
-            $(wrapper).append(fieldHTML); //Add field html
-//        }
-    });
-    
-    //Once remove button is clicked
-    $(wrapper).on('click', '.remove_button', function(e){
-        e.preventDefault();
-        $(this).parent('div').remove(); //Remove field html
-//        x--; //Decrement field counter
-    });
-});
-
-
-
-//ETIQUETAS
-$(document).ready(function(){
-//    var maxField = 10; //Input fields increment limitation
-    var addEtiqueta = $('.add_etiqueta'); //Add button selector
-    var wrapperEtiqueta = $('.field_wrapper_etiqueta'); //Input field wrapper
-    
-    var fieldHTMLetiqueta = 
-        '<div><input class="rellenar" type="text" name="newEtiqueta[]"/><a href="javascript:void(0);" class="remove_etiqueta"><svg class="bi bi-dash" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1H4a.5.5 0 01-.5-.5z" clip-rule="evenodd"/></svg></a></div>';
-        //New input field html 
+        var fieldHTML = 
+            '<div><input class="rellenar" type="text" name="autor[]" required/><a href="javascript:void(0);" class="remove_button"><svg class="bi bi-dash" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1H4a.5.5 0 01-.5-.5z" clip-rule="evenodd"/></svg></a></div>';
+            //New input field html 
+            
+        var x = 1; //Initial field counter is 1
         
-    var x = 1; //Initial field counter is 1
-    
-    //Once add button is clicked
-    $(addEtiqueta).click(function(){
-        //Check maximum number of input fields
-//        if(x < maxField){ 
-//            x++; //Increment field counter
-            $(wrapperEtiqueta).append(fieldHTMLetiqueta); //Add field html
-//        }
+        //Once add button is clicked
+        $(addButton).click(function(){
+            //Check maximum number of input fields
+    //        if(x < maxField){ 
+    //            x++; //Increment field counter
+                $(wrapper).append(fieldHTML); //Add field html
+    //        }
+        });
+        
+        //Once remove button is clicked
+        $(wrapper).on('click', '.remove_button', function(e){
+            e.preventDefault();
+            $(this).parent('div').remove(); //Remove field html
+    //        x--; //Decrement field counter
+        });
     });
-    
-    //Once remove button is clicked
-    $(wrapperEtiqueta).on('click', '.remove_etiqueta', function(e){
-        e.preventDefault();
-        $(this).parent('div').remove(); //Remove field html
-//        x--; //Decrement field counter
+
+
+
+    //ETIQUETAS
+    $(document).ready(function(){
+    //    var maxField = 10; //Input fields increment limitation
+        var addEtiqueta = $('.add_etiqueta'); //Add button selector
+        var wrapperEtiqueta = $('.field_wrapper_etiqueta'); //Input field wrapper
+        
+        var fieldHTMLetiqueta = 
+            '<div><input class="rellenar" type="text" name="newEtiqueta[]"/><a href="javascript:void(0);" class="remove_etiqueta"><svg class="bi bi-dash" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1H4a.5.5 0 01-.5-.5z" clip-rule="evenodd"/></svg></a></div>';
+            //New input field html 
+            
+        var x = 1; //Initial field counter is 1
+        
+        //Once add button is clicked
+        $(addEtiqueta).click(function(){
+            //Check maximum number of input fields
+    //        if(x < maxField){ 
+    //            x++; //Increment field counter
+                $(wrapperEtiqueta).append(fieldHTMLetiqueta); //Add field html
+    //        }
+        });
+        
+        //Once remove button is clicked
+        $(wrapperEtiqueta).on('click', '.remove_etiqueta', function(e){
+            e.preventDefault();
+            $(this).parent('div').remove(); //Remove field html
+    //        x--; //Decrement field counter
+        });
     });
-});
-</script>
+    </script>
+
+{% else  %}
+    <p>No eres administrador, por favor inicia sesión como administrador</p>
+{% endif  %}
 
 
 {% endblock %}  
