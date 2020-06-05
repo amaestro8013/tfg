@@ -785,14 +785,21 @@ class UsuariosController extends AbstractController
         $perfil=$em->getRepository(Perfiles::class)->find($perfilId);
         $usuario=$em->getRepository(Usuarios::class)->find($perfil->getUsuariosIdusuarios());
         
-        $mensaje = new Mensajes();
-        $mensaje->setComentario($comentario);
-        $mensaje->setFecha(date('Y-m-d H:i:s'));
-        $mensaje->setForosIdforos($foro);
-        $mensaje->setUsuariosIdusuarios($usuario);
+        if($usuario->getBloqueado()==0){
+            $mensaje = new Mensajes();
+            $mensaje->setComentario($comentario);
+            $mensaje->setFecha(date('Y-m-d H:i:s'));
+            $mensaje->setForosIdforos($foro);
+            $mensaje->setUsuariosIdusuarios($usuario);
 
-        $em->persist($mensaje);
-        $em->flush();
+            $em->persist($mensaje);
+            $em->flush();
+        }else{
+            echo '<script>type="text/javascript">
+                    alert("No puede escribir mensajes, esta bloquedado en el sistema");
+                </script>';
+        }
+        
         
         $foroEtiquetas=$em->getRepository(Forosetiquetas::class)->findBy(['forosIdforos'=>$perfil->getForosIdforos()]);
         $etiquetas= array();
