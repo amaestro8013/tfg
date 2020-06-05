@@ -20,17 +20,19 @@ input[type=checkbox] {
 .btn-light {
     color: #212529;
     background-color: #f8f9fa;
-    border-color: #f8f9fa;
+    border:1px solid #555;
+    
 }
 .btn-light:hover {
     color: #212529;
     background-color: orange;
-    border-color: #e5dada;
+    border:1px solid black;
     text-decoration: underline;
 }
 .w100 {
     width: 100%;
 }
+
 
 @media (min-width: 1201px){
     .logo {
