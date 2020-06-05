@@ -5,6 +5,9 @@ namespace App\Controller;
 use App\Entity\Usuarios;
 use App\Entity\Autores;
 use App\Entity\Canciones;
+use App\Entity\Perfiles;
+use App\Entity\Perfilesetiquetas;
+use App\Entity\Probabilidades;
 use App\Entity\Cancionesautores;
 use App\Entity\Cancionesetiquetas;
 use App\Entity\Etiquetas;
@@ -154,7 +157,6 @@ class AdministradoresController extends AbstractController
                 }
             }
             if ($contador == 0){
-                $contrasena = md5($datos->request->get('passwor'));
                 $nombre = $datos->request->get('nombre');
 
                 if( empty($datos->request->get('bloquear')) ) {
@@ -166,10 +168,6 @@ class AdministradoresController extends AbstractController
                 $usuario->setNombre($nombre);
                 $usuario->setMail($mail);
                 $usuario->setBloqueado($bloqueado);
-                if($contrasena == ''){
-                }else{
-                    $usuario->setContrasena($contrasena);
-                }
                 
                 $em->persist($usuario);
                 $em->flush();              
@@ -475,4 +473,186 @@ class AdministradoresController extends AbstractController
         return $this->redirectToRoute('gestion-canciones');
     }
 
+
+//
+//Gestión de busqueda
+//
+    /**
+     * @Route("/gestion-busqueda", name="gestion-busqueda")
+     */
+    public function actualizarProbabilidades()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $perfiles=$em->getRepository(Perfiles::class)->findAll();
+
+        $probabilidades=$em->getRepository(Probabilidades::class)->findAll();
+
+        foreach ($probabilidades as $probabilidad){
+            $em->remove($probabilidad);
+            $em->flush();
+        }
+
+        foreach ($perfiles as $perfil){
+            if($perfil->getNombre()=='NO REGISTRADO'){
+                $this->eliminarPerfilMusical($perfil->getIdperfiles());
+            }
+            $this->calcularProbabilidadesPerfil($perfil);
+        }
+        
+
+        return $this->redirectToRoute('administrador');
+    }
+
+    public function eliminarPerfilMusical($id){
+        $em = $this->getDoctrine()->getManager(); 
+
+        $perfil=$em->getRepository(Perfiles::class)->find($id);
+
+        $relaciones=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
+
+        foreach ($relaciones as $relacion){
+            $em->remove($relacion);
+            $em->flush();
+        }
+        $em->remove($perfil);
+        $em->flush();
+    }
+
+    public function calcularProbabilidadesPerfil($perfil){
+        
+        $em = $this->getDoctrine()->getManager();
+
+        //obtenemos las canciones que le gustan al usuario a partir del perfil
+        //para ello primero obtenemos todas las etiquetas del perfil
+        //tanto generos (tipo 0) como autores (tipo 1) como canciones (tipo 2)
+        $etiquetasDelPerfil=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
+        
+        $cancionesQueLeGustan=array();
+        $i=0;
+        foreach ($etiquetasDelPerfil as $e){
+            
+            $etiqueta=$em->getRepository(Etiquetas::class)->find($e->getEtiquetasIdetiquetas());
+            //nos quedamos unicamente con las de tipo 2 (CANCIONES)
+            if($etiqueta->getTipo()==2){
+                $cancionesQueLeGustan[$i]=$etiqueta;
+                $i = $i +1;
+            }
+        }
+        //obtenemos el numero de canciones que le gustan del array creado en el paso anterior
+        $numCancionesQueLeGustan = count($cancionesQueLeGustan);
+
+
+        //Obtenemos todos los generos para crear las probabilidades de este perfil
+        $generos = $em->getRepository(Etiquetas::class)->findBy(['tipo'=>0]);
+
+        foreach ($generos as $genero){
+            //variable para calcular el numero de canciones de este genero
+            $numCancionesPorGenero=0;
+
+            foreach ($cancionesQueLeGustan as $c){
+
+                //buscamos la relacion entre la etiqueta del tipo 2 y la cancion
+                //para poder los generos de la cancion en una funcion aparte
+                $relacionEtiquetaCancion = $em->getRepository(Cancionesetiquetas::class)->findOneBy(['etiquetasIdetiquetas'=>$c->getIdetiquetas()]);
+                $generosDeLaCancion=$this->generosDeCancion($relacionEtiquetaCancion->getCancionesIdcanciones());
+                
+                foreach ($generosDeLaCancion as $generoDeCancion){
+                    //por cada genero de esa cancion, si coincide con el genero del primer 'foreach',
+                    //se añade uno a la variable 'numCancionesPorGenero'
+                    if($genero == $generoDeCancion){
+                        $numCancionesPorGenero=$numCancionesPorGenero +1;;
+                    }
+                }
+            }
+
+            //una vez terminado sabemos el numero de canciones que le gustan que tienen este genero
+            //se crea la nueba cifra y se guarda en la base de datos
+            $probabilidades = new Probabilidades();
+            $probabilidades->setIdperfil($perfil->getIdperfiles());
+            $probabilidades->setIdetiqueta($genero->getIdetiquetas());
+            $probabilidades->setTipo(0);
+            $probabilidades->setProbabilidad($numCancionesPorGenero/$numCancionesQueLeGustan);
+
+            $em->persist($probabilidades);
+            $em->flush();
+            
+        }
+
+        //A CONTINUACION LO MISMO QUE HEMOS HECHO CON LOS GENEROS, LO HACEMOS CON LOS ARTISTAS
+
+        //Obtenemos los artistas para crear las probabilidades de este perfil
+        $artistas = $em->getRepository(Etiquetas::class)->findBy(['tipo'=>1]);
+
+        foreach ($artistas as $artista){
+            $numCancionesPorArtista=0;
+
+            foreach ($cancionesQueLeGustan as $c){
+
+                $relacionEtiquetaCancion = $em->getRepository(Cancionesetiquetas::class)->findOneBy(['etiquetasIdetiquetas'=>$c->getIdetiquetas()]);
+                $artistasDeLaCancion=$this->artistasDeCancion($relacionEtiquetaCancion->getCancionesIdcanciones());
+                
+                foreach ($artistasDeLaCancion as $artistaDeCancion){
+                    if($artista == $artistaDeCancion){
+                        $numCancionesPorArtista=$numCancionesPorArtista +1;;
+                    }
+                }
+            }
+            $probabilidades = new Probabilidades();
+            $probabilidades->setIdperfil($perfil->getIdperfiles());
+            $probabilidades->setIdetiqueta($artista->getIdetiquetas());
+            $probabilidades->setTipo(1);
+            $probabilidades->setProbabilidad($numCancionesPorArtista/$numCancionesQueLeGustan);
+
+            $em->persist($probabilidades);
+            $em->flush();
+        }
+    }
+
+    public function generosDeCancion($id){
+
+        //obtenemos todas las etiquetas a partir de un determinado ID de cancion, 
+        //quedandonos solo con aquellas que pertenecen a los generos,
+        //es decir, aquellas que son de tipo 0
+
+        $em = $this->getDoctrine()->getManager();
+
+        $cancionEtiquetas=$em->getRepository(Cancionesetiquetas::class)->findBy(['cancionesIdcanciones'=>$id]);
+        
+        $etiquetas = array();
+        $i = 0;
+        foreach ($cancionEtiquetas as $etiquetaID){
+
+            $tag=$em->getRepository(Etiquetas::class)->findOneBy(['idetiquetas'=>$etiquetaID->getEtiquetasIdetiquetas()]);
+            if($tag->getTipo()==0){
+                $etiquetas[$i]=$tag;
+                $i = $i +1;
+            }  
+        }
+
+        return $etiquetas;
+    }
+
+    public function artistasDeCancion($id){
+
+        //obtenemos todas las etiquetas a partir de un determinado ID de cancion, 
+        //quedandonos solo con aquellas que pertenecen a los artistas,
+        //es decir, aquellas que son de tipo 1
+
+        $em = $this->getDoctrine()->getManager();
+
+        $cancionEtiquetas=$em->getRepository(Cancionesetiquetas::class)->findBy(['cancionesIdcanciones'=>$id]);
+        
+        $etiquetas = array();
+        $i = 0;
+        foreach ($cancionEtiquetas as $etiquetaID){
+
+            $tag=$em->getRepository(Etiquetas::class)->findOneBy(['idetiquetas'=>$etiquetaID->getEtiquetasIdetiquetas()]);
+            if($tag->getTipo()==1){
+                $etiquetas[$i]=$tag;
+                $i = $i +1;
+            }  
+        }
+        return $etiquetas;
+    }
 }
