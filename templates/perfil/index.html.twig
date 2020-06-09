@@ -4,32 +4,9 @@
 
 {% block body %}
 
-<style>
-.recuadro{
-    display: inline-block;
-    width: 49%;
-    height: 70px;
-    margin: 0px 5px ;
-    padding: 20px 0px 10px 0px;
-    background-color: white;
-    text-align: center;
-    color: black;
-    border: solid 1px #ccc;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-items: center;
-    align-content: center;
-}
-.recuadro:hover {
-    border: solid 1px orange;
-    color: black;
-}
-
-</style>
 
 
-<div class="container">
+<div class="container flexy">
     <div class="row">
         <a href="/add-perfil-musical"  class="recuadro">
             <p><b>Crear perfil de gustos musicales</b></p>  
@@ -44,7 +21,7 @@
     <div class="row">
         {% for perfil in perfiles %}
             
-            <div class="col-md-8">
+            <div class="col-md-8 perfil">
                 <a href="get-perfil/{{perfil.idPerfiles}}"  class="recuadro-perfil">
                     <div>
                         <h2>Perfil: <b>{{perfil.nombre}}</b></h2>

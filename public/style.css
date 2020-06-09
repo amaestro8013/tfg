@@ -64,4 +64,28 @@ input[type=checkbox] {
     padding: 7px;
 }
 
+.flexy{
+    display: flex;
+    justify-content: center;
+}
+.recuadro{
+    display: inline-block;
+    width: 49%;
+    height: 70px;
+    margin: 0px 5px ;
+    padding: 20px 0px 10px 0px;
+    background-color: white;
+    text-align: center;
+    color: black;
+    border: solid 1px #ccc;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+}
+.recuadro:hover {
+    border: solid 1px orange;
+    color: black;
+}
     
