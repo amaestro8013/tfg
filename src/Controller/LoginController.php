@@ -81,13 +81,25 @@ class LoginController extends AbstractController
 
                                 return $this->redirectToRoute('administrador');
                             }
-                        }                 
+                            else{
+                                echo '<script>
+                                    alert("Usuario o contraseña incorrectos");
+                                </script>';
+                                
+                            }
+                        }   
+                        else{
+                            echo '<script>
+                                alert("Usuario o contraseña incorrectos");
+                            </script>';
+                            
+                        }              
                     }
                     else{
                         if($existe=$em->getRepository(Usuarios::class)->findOneBy(['mail'=> $mail])){
 
                             $pass=$existe->getContrasena();
-                            
+
                             if($pass==$contrasena){
 
                                 // Establecer y obtener atributos de sesión
@@ -96,6 +108,18 @@ class LoginController extends AbstractController
 
                                 return $this->redirectToRoute('perfil');
                             }
+                            else{
+                                echo '<script>
+                                    alert("Usuario o contraseña incorrectos");
+                                </script>';
+                                
+                            }
+                        }
+                        else{
+                            echo '<script>
+                                alert("Usuario o contraseña incorrectos");
+                            </script>';
+                            
                         }
                     }
                 }

@@ -340,7 +340,7 @@ class UsuariosController extends AbstractController
                     }
                 }else{
                     echo '<script>
-                        alert("Contraseña Antigua incorrecta");
+                        alert("Contraseña incorrecta");
                         </script>';
                 }
             }

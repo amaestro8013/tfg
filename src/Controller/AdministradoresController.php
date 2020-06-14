@@ -461,6 +461,7 @@ class AdministradoresController extends AbstractController
             $em->remove($relacionAutor);
         }
         foreach ($cancionEtiqueta as $relacionEtiqueta){
+            
             $em->remove($relacionEtiqueta);
         }
         $em->flush();
