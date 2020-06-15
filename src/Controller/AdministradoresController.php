@@ -119,7 +119,7 @@ class AdministradoresController extends AbstractController
     }
 
     /**
-     * @Route("/editar-usuario/{id}", name="editar-usuario")
+     * @Route("/editar-usuario={id}", name="editar-usuario")
      */
     public function editarUsuario($id)
     {
@@ -375,7 +375,7 @@ class AdministradoresController extends AbstractController
     }
 
     /**
-     * @Route("/editar-cancion/{id}", name="editar-cancion")
+     * @Route("/editar-cancion={id}", name="editar-cancion")
      */
     public function editarCancion($id)
     {

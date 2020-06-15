@@ -25,7 +25,7 @@
                     <td>{{u.mail}}</td>
                     <td>{{u.nombre}}</td>
                     <td>
-                        <a class="btn btn-light" href="/editar-usuario/{{u.idUsuarios}}">Editar<a>
+                        <a class="btn btn-light" href="/editar-usuario={{u.idUsuarios}}">Editar<a>
                     </td>
                     <td>
                         {% if u.bloqueado %}
@@ -39,6 +39,7 @@
         </tbody>
     </table>
 </div>
+<div class="separador"></div>
 
 {% else  %}
     <p>No eres administrador, por favor inicia sesión como administrador</p>

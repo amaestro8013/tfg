@@ -4,29 +4,6 @@
 
 {% block body %}
 
-<style>
-
-.recuadro-full{
-    width: 100%;
-    height: 75px;
-    padding: 20px 0px 10px 0px;
-    background-color: white;
-    text-align: center;
-    color: black;
-    border: solid 1px #ccc;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-items: center;
-    align-content: center;
-}
-.recuadro-full:hover {
-    border: solid 1px #777;
-    color: black;
-}
-
-</style>
-
 
 {% if app.session.get('quien') == 'administrador' %}
 
@@ -38,6 +15,7 @@
         </div>
     </div>
 
+    <div class="separador"></div>   
 
     <div class="container">
         <div class="row">
