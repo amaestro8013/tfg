@@ -4,28 +4,6 @@
 
 {% block body %}
 
-<style>
-
-.recuadro-full{
-    width: 100%;
-    height: 75px;
-    padding: 20px 0px 10px 0px;
-    background-color: white;
-    text-align: center;
-    color: black;
-    border: solid 1px #ccc;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-items: center;
-    align-content: center;
-}
-.recuadro-full:hover {
-    border: solid 1px #777;
-    color: black;
-}
-</style>
-
 <div class="container">
     <div class="row">
         <div class="col-md">
@@ -40,6 +18,7 @@
                     <input class="rellenar" type="text" id="nombre" name="nombre" required value="{{perfil.nombre}}"/>
                     <div class="espacio2"></div>
                 </div>
+                <div class="separador"></div>
                 <div class="container">
                     <div class="row">
                         <div class="col-md-1"></div>
@@ -94,7 +73,7 @@
                             </table>
                         </div>
                         <div class="col-md-12">
-                            <input class="btn btn-light" type="submit" id="enviar" name="submit" value="Crear"/>
+                            <input class="btn btn-light w100" type="submit" id="enviar" name="submit" value="Crear"/>
                         </div>
                     </div>
                 </div>
@@ -102,6 +81,7 @@
         </div>
     </div>
 </div>
+<div class="separador"></div>
 
 
 {% endblock %}  

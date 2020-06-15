@@ -4,64 +4,41 @@
 
 {% block body %}
 
-<style>
-.recuadro{
-    display: inline-block;
-    width: 32%;
-    height: 70px;
-    margin: 0px 5px ;
-    padding: 20px 0px 10px 0px;
-    background-color: white;
-    text-align: center;
-    color: black;
-    border: solid 1px #ccc;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-items: center;
-    align-content: center;
-}
-.recuadro:hover {
-    border: solid 1px orange;
-    color: black;
-}
-
-.etiquetas-perfil{
-    width:25%;
-    display:inline-block;
-}
-</style>
-
 
 <div class="container">
-    <div class="row">
-        <a href="/editar-perfil-musical/{{perfil.idperfiles}}"  class="recuadro">
+    <div class="row flexy-center">
+        <a href="/editar-perfil-musical={{perfil.idperfiles}}"  class="recuadro btn-light">
             <p><b>Editar este perfil musical</b></p>  
         </a>
-        <a href="/foro/{{perfil.idperfiles}}" class="recuadro">
+        <a href="/foro={{perfil.idperfiles}}" class="recuadro btn-light">
             <p><b>Acceder al foro</b></p>
         </a>    
-        <a href="/eliminar-perfil-musical/{{perfil.idperfiles}}" class="recuadro">
+        <a href="/eliminar-perfil-musical/{{perfil.idperfiles}}" class="recuadro btn-light ">
             <p><b>Eliminar perfil musical</b></p>
         </a>       
     </div>
 </div>
-
+<div class="separador"></div>
 <div class="container">
-    <div class="row">
-        <div class="col-md-8">
+    <div class="row flexy-center">
+        <div class="col-md-10">
             <h2>{{perfil.nombre}}</h2>
             {% for etiqueta in etiquetas %}
-                 <div class="etiquetas-perfil">{{etiqueta.etiquetasidetiquetas.nombre}}</div> 
+                <div class="etiqueta">
+                    <svg class="estiqueta-hastag" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8.39 12.648a1.32 1.32 0 0 0-.015.18c0 .305.21.508.5.508.266 0 .492-.172.555-.477l.554-2.703h1.204c.421 0 .617-.234.617-.547 0-.312-.188-.53-.617-.53h-.985l.516-2.524h1.265c.43 0 .618-.227.618-.547 0-.313-.188-.524-.618-.524h-1.046l.476-2.304a1.06 1.06 0 0 0 .016-.164.51.51 0 0 0-.516-.516.54.54 0 0 0-.539.43l-.523 2.554H7.617l.477-2.304c.008-.04.015-.118.015-.164a.512.512 0 0 0-.523-.516.539.539 0 0 0-.531.43L6.53 5.484H5.414c-.43 0-.617.22-.617.532 0 .312.187.539.617.539h.906l-.515 2.523H4.609c-.421 0-.609.219-.609.531 0 .313.188.547.61.547h.976l-.516 2.492c-.008.04-.015.125-.015.18 0 .305.21.508.5.508.265 0 .492-.172.554-.477l.555-2.703h2.242l-.515 2.492zm-1-6.109h2.266l-.515 2.563H6.859l.532-2.563z"/>
+                    </svg>
+                    {{etiqueta.etiquetasidetiquetas.nombre}}
+                </div>
             {% endfor %}
         </div> 
     </div>
 </div>
 
 <div class="container">
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-5">
+    <div class="row flexy-center">
+        
+        <div class="col-md-8">
             <h3> Estos han sido los resultados</h3>
             <table class="table table-striped">
                 <tbody>
@@ -75,5 +52,7 @@
         </div>
     </div>
 </div>
+
+<div class="separador"></div>
 
 {% endblock %}
