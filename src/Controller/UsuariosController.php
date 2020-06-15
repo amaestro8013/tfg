@@ -41,7 +41,7 @@ class UsuariosController extends AbstractController
     }
 
     /**
-     * @Route("/get-perfil/{id}", name="get-perfil/")
+     * @Route("/get-perfil={id}", name="get-perfil/")
      */
     public function getPerfilMusical(Request $datos, SessionInterface $session, $id)
     {
@@ -59,7 +59,7 @@ class UsuariosController extends AbstractController
     }
 
     /**
-     * @Route("/editar-perfil-musical/{id}", name="editar-perfil-musical")
+     * @Route("/editar-perfil-musical={id}", name="editar-perfil-musical")
      */
     public function editarPerfilMusical(Request $datos, SessionInterface $session, $id)
     {
@@ -109,18 +109,29 @@ class UsuariosController extends AbstractController
                 $em->persist($perfil);
                 $em->flush();
                 
-                $this->añadirEtiquetas($etiquetas, $perfil);
-                $canciones=$this->seleccionaCanciones($perfil);
 
+                $ambas = $this->añadirEtiquetas($etiquetas, $perfil);
 
-                //crear foro si existe o si no asociarlo a este perfil
-                $this->foro($perfil ,$etiquetas);
+                if ($ambas == 2){
+                    
+                    $this->foro($perfil, $etiquetas);
 
-                $canciones=$this->seleccionaCanciones($perfil);
+                    $canciones=$this->seleccionaCanciones($perfil);
 
-                return $this->render('perfil/canciones.html.twig', [
-                    'canciones' => $canciones, 'perfil'=>$perfil,
-                ]);
+                    return $this->render('perfil/canciones.html.twig', [
+                        'canciones' => $canciones, 'perfil'=>$perfil,
+                    ]);
+                }
+                else{
+
+                    $this->eliminarPerfilMusical($perfil->getIdperfiles());
+                    
+                    echo '<script>type="text/javascript">
+                        alert("Selecciona al menos un artista y un genero musical");
+                    </script>';
+
+                    return $this->redirectToRoute('perfil');
+                }
 
             }else{
                 echo '<script>type="text/javascript">
@@ -415,22 +426,34 @@ class UsuariosController extends AbstractController
                 $em->persist($perfil);
                 $em->flush();
                 
-                $this->añadirEtiquetas($etiquetas, $perfil);
+                $ambas = $this->añadirEtiquetas($etiquetas, $perfil);
 
-                $this->foro($perfil, $etiquetas);
+                if ($ambas == 2){
+                    
+                    $this->foro($perfil, $etiquetas);
+
+                    $canciones=$this->seleccionaCanciones($perfil);
+
+                    return $this->render('perfil/canciones.html.twig', [
+                        'canciones' => $canciones, 'perfil'=>$perfil,
+                    ]);
+                }
+                else{
+
+                    $this->eliminarPerfilMusical($perfil->getIdperfiles());
+                    
+                    echo '<script>type="text/javascript">
+                        alert("Selecciona al menos un artista y un genero musical");
+                    </script>';
+
+                    return $this->redirectToRoute('perfil');
+                }
+
                 
-
-                
-
-                $canciones=$this->seleccionaCanciones($perfil);
-
-                return $this->render('perfil/canciones.html.twig', [
-                    'canciones' => $canciones, 'perfil'=>$perfil,
-                ]);
 
             }else{
                 echo '<script>type="text/javascript">
-                    alert("Selecciona al menos un artista o genero musical");
+                    alert("Selecciona al menos un artista y un genero musical");
                 </script>';
 
                 return $this->redirectToRoute('perfil');
@@ -450,18 +473,42 @@ class UsuariosController extends AbstractController
 
     public function añadirEtiquetas($etiquetas, $perfil)
     {
+        $ambas=0;
         $em = $this->getDoctrine()->getManager();
+
+        $etiquetasDelPerfil = $em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
+
         foreach ($etiquetas as $id){
             
             $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
 
-            $PerfilEtiquetas = new Perfilesetiquetas();
-            $PerfilEtiquetas->setEtiquetasIdetiquetas($etiqueta);
-            $PerfilEtiquetas->setPerfilesIdperfiles($perfil);
+            if ($etiqueta->getTipo() == 0){
+                $ambas=1;
+            }
+            if ($etiqueta->getTipo() == 1){
+                if ($ambas==1){
+                    $ambas = 2;
+                }
+            }
 
-            $em->persist($PerfilEtiquetas);
-            $em->flush();
+            $nueva=0;
+            foreach ($etiquetasDelPerfil as $relacion){
+                if ($relacion->getEtiquetasIdetiquetas() == $etiqueta){
+                    $nueva=1;
+                }
+            }
+            if($nueva==0){
+                $PerfilEtiquetas = new Perfilesetiquetas();
+                $PerfilEtiquetas->setEtiquetasIdetiquetas($etiqueta);
+                $PerfilEtiquetas->setPerfilesIdperfiles($perfil);
+
+                $em->persist($PerfilEtiquetas);
+                $em->flush();
+            }
+            
+            
         }
+        return $ambas;
     }
 
     public function seleccionaCanciones($perfil)
@@ -517,20 +564,25 @@ class UsuariosController extends AbstractController
                 $this->calcularProbabilidadesPerfil($perfil);
 
                 $canciones = $this->cancionesAMostrar($perfil);
+                
+                $tags=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil]);
 
-                return $this->render('inicio/busqueda.html.twig', [
-                    'canciones' => $canciones,
+                return $this->render('perfil/perfilMusical.html.twig', [
+                    'perfil' => $perfil, 'etiquetas' => $tags, 'canciones' => $canciones,
                 ]);
                 
             }else{
+
+                $this->eliminarPerfilMusical($perfil->getIdperfiles());
+
                 echo '<script>type="text/javascript">
                     alert("Selecciona al menos una canción");
                 </script>';
-                return $this->redirectToRoute('inicio');
+                return $this->redirectToRoute('perfil');
             }
         }
          
-        return $this->redirectToRoute('inicio');
+        return $this->redirectToRoute('perfil');
     }
 
 
@@ -743,7 +795,7 @@ class UsuariosController extends AbstractController
 
 
     /**
-     * @Route("/foro/{id}", name="foro{id}")
+     * @Route("/foro={id}", name="foro{id}")
      */
     public function getForo($id)
     {

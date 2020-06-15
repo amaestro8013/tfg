@@ -52,13 +52,26 @@ class InicioController extends AbstractController
                 $em->persist($perfil);
                 $em->flush();
                 
-                $this->añadirEtiquetas($etiquetas, $perfil);
+                $ambas = $this->añadirEtiquetas($etiquetas, $perfil);
 
-                $canciones=$this->seleccionaCanciones($perfil);
+                if ($ambas == 2){
 
-                return $this->render('inicio/canciones.html.twig', [
-                    'canciones' => $canciones, 'perfil'=>$perfil
-                ]);
+                    $canciones=$this->seleccionaCanciones($perfil);
+
+                    return $this->render('inicio/canciones.html.twig', [
+                        'canciones' => $canciones, 'perfil'=>$perfil
+                    ]);
+                }
+                else{
+
+                    $this->eliminarPerfilMusical($perfil->getIdperfiles());
+                    
+                    echo '<script>type="text/javascript">
+                        alert("Selecciona al menos un artista y un genero musical");
+                    </script>';
+
+                    return $this->redirectToRoute('inicio');
+                }
 
             }else{
                 echo '<script>type="text/javascript">
@@ -71,20 +84,60 @@ class InicioController extends AbstractController
         return $this->redirectToRoute('inicio');
     }
 
+    public function eliminarPerfilMusical($id)
+    {
+        $em = $this->getDoctrine()->getManager(); 
+
+        $perfil=$em->getRepository(Perfiles::class)->find($id);
+
+        $relaciones=$em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
+
+        foreach ($relaciones as $relacion){
+            $em->remove($relacion);
+            $em->flush();
+        }
+        $em->remove($perfil);
+        $em->flush();
+    }
+
     public function añadirEtiquetas($etiquetas, $perfil)
     {
+        $ambas=0;
         $em = $this->getDoctrine()->getManager();
+
+        $etiquetasDelPerfil = $em->getRepository(Perfilesetiquetas::class)->findBy(['perfilesIdperfiles'=>$perfil->getIdperfiles()]);
+
         foreach ($etiquetas as $id){
             
             $etiqueta=$em->getRepository(Etiquetas::class)->find($id);
 
-            $PerfilEtiquetas = new Perfilesetiquetas();
-            $PerfilEtiquetas->setEtiquetasIdetiquetas($etiqueta);
-            $PerfilEtiquetas->setPerfilesIdperfiles($perfil);
+            if ($etiqueta->getTipo() == 0){
+                $ambas=1;
+            }
+            if ($etiqueta->getTipo() == 1){
+                if ($ambas==1){
+                    $ambas = 2;
+                }
+            }
 
-            $em->persist($PerfilEtiquetas);
-            $em->flush();
+            $nueva=0;
+            foreach ($etiquetasDelPerfil as $relacion){
+                if ($relacion->getEtiquetasIdetiquetas() == $etiqueta){
+                    $nueva=1;
+                }
+            }
+            if($nueva==0){
+                $PerfilEtiquetas = new Perfilesetiquetas();
+                $PerfilEtiquetas->setEtiquetasIdetiquetas($etiqueta);
+                $PerfilEtiquetas->setPerfilesIdperfiles($perfil);
+
+                $em->persist($PerfilEtiquetas);
+                $em->flush();
+            }
+            
+            
         }
+        return $ambas;
     }
 
     public function seleccionaCanciones($perfil)
@@ -159,7 +212,7 @@ class InicioController extends AbstractController
     }
 
     /**
-     * @Route("/buscar", name="buscar")
+     * @Route("/buscar", name="buscarn")
      */
     public function busqueda( Request $datos)
     {
@@ -188,6 +241,9 @@ class InicioController extends AbstractController
                 ]);
                 
             }else{
+
+                $this->eliminarPerfilMusical($perfil->getIdperfiles());
+                
                 echo '<script>type="text/javascript">
                     alert("Selecciona al menos una canción");
                 </script>';
